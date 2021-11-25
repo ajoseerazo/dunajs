@@ -1,121 +1,159 @@
 <html>
-<head>
-</head>
+  <head> </head>
 
-<body>
- <div id='greetings'></div>
- <input id='input' @change="onChange" @value="value" />
- <button id='button' @click="onClick">Click Me</button>
+  <body>
+    <div id="greetings">
+      <h1>El texto es: { text }</h1>
+    </div>
+    <input id="input" @change="onChange" @value="value" />
+    <button id="button" @click="onClick">Click Me</button>
 
+    <script>
+      class Duna {
+        constructor(id, props) {
+          this.id = id;
+          this.events = props.events;
+          this.view = props.view;
 
- <script>
-   class Duna {
-     constructor(id, props) {
-       this.id = id;
-       this.events = props.events;
-       this.view = props.view;
-       
-       this.el = document.querySelector(this.id);
-             
-       if (props.state) {
-         this.state = props.state || {};
-         this.state.bindEl(this.el);
-         
-         if (this.el.attributes['@value']) {
-console.log(this.el.attributes['@value'].value);
-          console.log(this.state.get(this.el.attributes['@value'].value));
-          
-         	this.el.value = this.state.get(this.el.attributes['@value'].value);
-         }
-       }                                 
-       
-       this.bindEvents();
-     }
-     
-     bindEvents() {
-       /*if (this.events && this.events.onClick) {
+          this.el = document.querySelector(this.id);
+          this.context = this.el.innerHTML;
+
+          if (props.state) {
+            this.state = props.state || {};
+            this.state.bindEl(this.el);
+
+            if (this.el.attributes["@value"]) {
+              // console.log(this.el.attributes["@value"].value);
+              // console.log(this.state.get(this.el.attributes["@value"].value));
+
+              this.el.value = this.state.get(
+                this.el.attributes["@value"].value
+              );
+            }
+          }
+
+          this.bindEvents();
+        }
+
+        bindEvents() {
+          /*if (this.events && this.events.onClick) {
          this.el.addEventListener('click', this.events.onClick);
-       }*/         
-      
-       if (this.el.attributes['@click']) {
-         if (this.events[this.el.attributes['@click'].value]) {
-            this.el.addEventListener('click', this.events[this.el.attributes['@click'].value])
-         }
-       }                                                      
-       
-       if (this.el.attributes['@change']) {
-         if (this.events[this.el.attributes['@change'].value]) {
-            this.el.addEventListener('change', this.events[this.el.attributes['@change'].value])
-         } 
-       }          
-       
-       this.el.addEventListener('stateChanged', function() {
-         this.render();
-       }.bind(this));
-     }
+       }*/
 
-     render() {
-       if (this.view) {
-       	 this.el.innerHTML = this.view();
-       }
-     }
-   } 
-   
-   class DunaState {
-      constructor(state) {
-         this.data = state;
-      }
-      
-      bindEl(element) {
-      	this.el = element;
-      }
-      
-      get(key) {
-         return this.data[key];
-      }
-      
-      set(key, value) {
-      	this.data[key] = value;
-      	
-      	const event = new CustomEvent('stateChanged', { state: this.data });
-      	this.el.dispatchEvent(event);
-      }
-   }
-   
-   const greetingState = new DunaState({
-      text: 'Hello World!'
-   });
+          if (this.el.attributes["@click"]) {
+            if (this.events[this.el.attributes["@click"].value]) {
+              this.el.addEventListener(
+                "click",
+                this.events[this.el.attributes["@click"].value]
+              );
+            }
+          }
 
-   const greeting = new Duna('#greetings', {
-      view: function() {
-	return `<h1>${this.state.data.text}</h1>`;
-      },
-      state: greetingState
-   });
-   
-   greeting.render();
+          if (this.el.attributes["@change"]) {
+            if (this.events[this.el.attributes["@change"].value]) {
+              this.el.addEventListener(
+                "change",
+                this.events[this.el.attributes["@change"].value]
+              );
+            }
+          }
 
-   const button = new Duna('#button', {
-     events: {
-       onClick: function() {
-         greeting.state.set('text', input.state.get('value'));
-       }
-     } 
-   });
-   button.render();
-   
-   const inputState = new DunaState({
-     value: 'Amilcar'
-   });
-   const input = new Duna('#input', {
-     events: {
-       onChange: function(e) {
-         input.state.set('value', e.target.value);	
-       }
-     },
-     state: inputState 
-   });
-   input.render();
- </script>
-</body>
+          this.el.addEventListener(
+            "stateChanged",
+            function () {
+              this.render();
+            }.bind(this)
+          );
+        }
+
+        render() {
+          if (this.view) {
+            this.el.innerHTML = this.view();
+          } else {
+            const regExp = /\{\s*.*\s*\}/g;
+
+            const content = this.context;
+
+            const matches = content.match(regExp);
+
+            const variables = [];
+            if (matches) {
+              for (let i = 0; i < matches.length; i++) {
+                const variable = matches[i]
+                  .replace(/\{\s/g, "")
+                  .replace(/\s*\}/g, "");
+
+                const value = this.state.get(variable);
+
+                // console.log("New Value", value);
+
+                const regExp = new RegExp(`${matches[i]}`, "g");
+
+                const newContent = content.replace(regExp, value);
+
+                this.el.innerHTML = newContent;
+
+                variables.push(variable);
+              }
+            }
+
+            // console.log("Variables", variables);
+          }
+        }
+      }
+
+      class DunaState {
+        constructor(state) {
+          this.data = state;
+        }
+
+        bindEl(element) {
+          this.el = element;
+        }
+
+        get(key) {
+          return this.data[key];
+        }
+
+        set(key, value) {
+          this.data[key] = value;
+
+          const event = new CustomEvent("stateChanged", { state: this.data });
+          this.el.dispatchEvent(event);
+        }
+      }
+
+      const greetingState = new DunaState({
+        text: "Hello World!",
+      });
+
+      const greeting = new Duna("#greetings", {
+        state: greetingState,
+      });
+
+      greeting.render();
+
+      const button = new Duna("#button", {
+        events: {
+          onClick: function () {
+            greeting.state.set("text", input.state.get("value"));
+          },
+        },
+      });
+      button.render();
+
+      const inputState = new DunaState({
+        value: "Amilcar",
+      });
+      const input = new Duna("#input", {
+        events: {
+          onChange: function (e) {
+            input.state.set("value", e.target.value);
+          },
+        },
+        state: inputState,
+      });
+      input.render();
+    </script>
+  </body>
 </html>
