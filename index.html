@@ -1,5 +1,8 @@
 <html>
-  <head> </head>
+  <head>
+    <script src="./duna-state.js"></script>
+    <script src="./duna.js"></script>
+  </head>
 
   <body>
     <div id="greetings">
@@ -9,138 +12,24 @@
     <button id="button" @click="onClick">Click Me</button>
 
     <script>
-      class Duna {
-        constructor(id, props) {
-          this.id = id;
-          this.events = props.events;
-          this.view = props.view;
-
-          this.el = document.querySelector(this.id);
-          this.context = this.el.innerHTML;
-
-          if (props.state) {
-            this.state = new DunaState(props.state || {});
-            this.state.bindEl(this.el);
-
-            if (this.el.attributes["@value"]) {
-              // console.log(this.el.attributes["@value"].value);
-              // console.log(this.state.get(this.el.attributes["@value"].value));
-
-              this.el.value = this.state.get(
-                this.el.attributes["@value"].value
-              );
-            }
-          }
-
-          this.bindEvents();
-        }
-
-        bindEvents() {
-          /*if (this.events && this.events.onClick) {
-         this.el.addEventListener('click', this.events.onClick);
-       }*/
-
-          if (this.el.attributes["@click"]) {
-            if (this.events[this.el.attributes["@click"].value]) {
-              this.el.addEventListener(
-                "click",
-                this.events[this.el.attributes["@click"].value]
-              );
-            }
-          }
-
-          if (this.el.attributes["@change"]) {
-            if (this.events[this.el.attributes["@change"].value]) {
-              this.el.addEventListener(
-                "change",
-                this.events[this.el.attributes["@change"].value]
-              );
-            }
-          }
-
-          this.el.addEventListener(
-            "stateChanged",
-            function () {
-              this.render();
-            }.bind(this)
-          );
-        }
-
-        render() {
-          if (this.view) {
-            this.el.innerHTML = this.view();
-          } else {
-            const regExp = /\{\s*.*\s*\}/g;
-
-            const content = this.context;
-
-            const matches = content.match(regExp);
-
-            const variables = [];
-            if (matches) {
-              for (let i = 0; i < matches.length; i++) {
-                const variable = matches[i]
-                  .replace(/\{\s/g, "")
-                  .replace(/\s*\}/g, "");
-
-                const value = this.state.get(variable);
-
-                // console.log("New Value", value);
-
-                const regExp = new RegExp(`${matches[i]}`, "g");
-
-                const newContent = content.replace(regExp, value);
-
-                this.el.innerHTML = newContent;
-
-                variables.push(variable);
-              }
-            }
-
-            // console.log("Variables", variables);
-          }
-        }
-      }
-
-      class DunaState {
-        constructor(state) {
-          this.data = state;
-        }
-
-        bindEl(element) {
-          this.el = element;
-        }
-
-        get(key) {
-          return this.data[key];
-        }
-
-        set(key, value) {
-          this.data[key] = value;
-
-          const event = new CustomEvent("stateChanged", { state: this.data });
-          this.el.dispatchEvent(event);
-        }
-      }
-
-      const greeting = new Duna("#greetings", {
+      const greeting = new Duna({
         state: {
           text: "Hello World!",
         },
       });
 
-      greeting.render();
+      greeting.mount("#greetings");
 
-      const button = new Duna("#button", {
+      const button = new Duna({
         events: {
           onClick: function () {
             greeting.state.set("text", input.state.get("value"));
           },
         },
       });
-      button.render();
+      button.mount("#button");
 
-      const input = new Duna("#input", {
+      const input = new Duna({
         events: {
           onChange: function (e) {
             input.state.set("value", e.target.value);
@@ -150,7 +39,7 @@
           value: "Amilcar",
         },
       });
-      input.render();
+      input.mount("#input");
     </script>
   </body>
 </html>
