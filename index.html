@@ -13,6 +13,12 @@
     <input id="input" @change="onChange" @value="value" />
     <button id="button" @click="onClick">{ buttonText }</button>
 
+    <br />
+    <br />
+    <br />
+
+    <button id="button-2" @click="onClick">Clicked { count } times</button>
+
     <script>
       // Greetings Component
       const greeting = new Duna({
@@ -55,6 +61,18 @@
         },
       });
       input.mount("#input");
+
+      const button2 = new Duna({
+        state: {
+          count: 0,
+        },
+        events: {
+          onClick: function () {
+            this.state.count += 1;
+          },
+        },
+      });
+      button2.mount("#button-2");
     </script>
   </body>
 </html>
