@@ -14,7 +14,7 @@ class Duna {
       if (this.events[this.el.attributes["@click"].value]) {
         this.el.addEventListener(
           "click",
-          this.events[this.el.attributes["@click"].value]
+          this.events[this.el.attributes["@click"].value].bind(this)
         );
       }
     }
@@ -23,7 +23,7 @@ class Duna {
       if (this.events[this.el.attributes["@change"].value]) {
         this.el.addEventListener(
           "change",
-          this.events[this.el.attributes["@change"].value]
+          this.events[this.el.attributes["@change"].value].bind(this)
         );
       }
     }

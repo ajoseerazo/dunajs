@@ -12,7 +12,7 @@
     <div id="text-example" @text="text"></div>
 
     <input id="input" @change="onChange" @value="value" />
-    <button id="button" @click="onClick">Click Me</button>
+    <button id="button" @click="onClick">{ buttonText }</button>
 
     <script>
       // Greetings Component
@@ -32,8 +32,12 @@
 
       // Button Component
       const button = new Duna({
+        state: {
+          buttonText: 'Hola'
+        },
         events: {
           onClick: function () {
+            this.state.set('buttonText', 'Que más pues?');
             greeting.state.set("text", input.state.get("value"));
           },
         },
