@@ -40,30 +40,34 @@ class Duna {
     if (this.view) {
       this.el.innerHTML = this.view();
     } else {
-      const regExp = /\{\s*.*\s*\}/g;
+      if (this.el.attributes["@text"]) {
+        this.el.innerHTML = this.state.data[this.el.attributes["@text"].value];
+      } else {
+        const regExp = /\{\s*.*\s*\}/g;
 
-      const content = this.context;
+        const content = this.context;
 
-      const matches = content.match(regExp);
+        const matches = content.match(regExp);
 
-      const variables = [];
-      if (matches) {
-        for (let i = 0; i < matches.length; i++) {
-          const variable = matches[i]
-            .replace(/\{\s/g, "")
-            .replace(/\s*\}/g, "");
+        const variables = [];
+        if (matches) {
+          for (let i = 0; i < matches.length; i++) {
+            const variable = matches[i]
+              .replace(/\{\s/g, "")
+              .replace(/\s*\}/g, "");
 
-          const value = this.state.get(variable);
+            const value = this.state.get(variable);
 
-          // console.log("New Value", value);
+            // console.log("New Value", value);
 
-          const regExp = new RegExp(`${matches[i]}`, "g");
+            const regExp = new RegExp(`${matches[i]}`, "g");
 
-          const newContent = content.replace(regExp, value);
+            const newContent = content.replace(regExp, value);
 
-          this.el.innerHTML = newContent;
+            this.el.innerHTML = newContent;
 
-          variables.push(variable);
+            variables.push(variable);
+          }
         }
       }
 
@@ -74,6 +78,11 @@ class Duna {
   mount(id) {
     this.id = id;
     this.el = document.querySelector(this.id);
+
+    if (!this.el) {
+      throw new Error("Element doesn't exists in the DOM");
+    }
+
     this.context = this.el.innerHTML;
 
     if (this.state) {
