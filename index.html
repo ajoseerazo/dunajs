@@ -12,14 +12,15 @@
     <button id="button" @click="onClick">Click Me</button>
 
     <script>
+      // Greetings Component
       const greeting = new Duna({
         state: {
           text: "Hello World!",
         },
       });
-
       greeting.mount("#greetings");
 
+      // Button Component
       const button = new Duna({
         events: {
           onClick: function () {
@@ -29,6 +30,7 @@
       });
       button.mount("#button");
 
+      // Input Component
       const input = new Duna({
         events: {
           onChange: function (e) {
