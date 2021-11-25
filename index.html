@@ -19,7 +19,7 @@
           this.context = this.el.innerHTML;
 
           if (props.state) {
-            this.state = props.state || {};
+            this.state = new DunaState(props.state || {});
             this.state.bindEl(this.el);
 
             if (this.el.attributes["@value"]) {
@@ -123,12 +123,10 @@
         }
       }
 
-      const greetingState = new DunaState({
-        text: "Hello World!",
-      });
-
       const greeting = new Duna("#greetings", {
-        state: greetingState,
+        state: {
+          text: "Hello World!",
+        },
       });
 
       greeting.render();
@@ -142,16 +140,15 @@
       });
       button.render();
 
-      const inputState = new DunaState({
-        value: "Amilcar",
-      });
       const input = new Duna("#input", {
         events: {
           onChange: function (e) {
             input.state.set("value", e.target.value);
           },
         },
-        state: inputState,
+        state: {
+          value: "Amilcar",
+        },
       });
       input.render();
     </script>
