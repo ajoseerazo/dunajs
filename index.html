@@ -52,7 +52,6 @@
         },
         events: {
           onClick: function () {
-            console.log(input.state.value);
             this.state.buttonText = "Que más pues?";
             greeting.state.text = input.state.value;
           },
@@ -64,7 +63,6 @@
       const input = new Duna({
         events: {
           onChange: function (e) {
-            console.log("---------")
             input.state.value = e.target.value;
           },
         },
