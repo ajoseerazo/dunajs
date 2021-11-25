@@ -5,7 +5,7 @@
 
   <body>
     <div id="greetings">
-      <h1>El mensaje es: { text.toLowerCase() }</h1>
+      <h1>El texto es: { text.toLowerCase() }</h1>
       <button @click="onClick">{ buttonText }</button>
     </div>
 
@@ -19,7 +19,7 @@
     <br />
 
     <button id="button-2" @click="onClick">
-      Clicked { count } { count === 1 ? 'time' : 'times'}
+      Clicked { count } { count === 1 ? 'time' : 'times' }
     </button>
 
     <script>
@@ -31,6 +31,7 @@
         },
         events: {
           onClick: function () {
+            this.state.text = "Hola que tal?";
             this.state.buttonText = "Que más pues?";
           },
         },

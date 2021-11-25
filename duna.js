@@ -3,6 +3,7 @@ class Duna {
     this.events = props.events;
     this.view = props.view;
     this.state = props.state;
+    this.eventsListeners = {};
   }
 
   bindEvents(el) {
@@ -29,18 +30,23 @@ class Duna {
     }
 
     for (let i = 0; i < el.children.length; i++) {
-      this.bindEvents(el.children[i])
+      this.bindEvents(el.children[i]);
     }
 
-    this.el.addEventListener(
-      "stateChanged",
-      function () {
+    if (!this.eventsListeners.stateChanged) {
+      const stateChangedEventListener = function () {
         this.render();
-      }.bind(this)
-    );
+      }.bind(this);
+
+      this.eventsListeners.stateChanged = stateChangedEventListener;
+
+      this.el.addEventListener("stateChanged", this.eventsListeners.stateChanged);
+    }
   }
 
   render() {
+    console.log("render()", this.id);
+
     if (this.view) {
       this.el.innerHTML = this.view();
     } else {
@@ -52,18 +58,27 @@ class Duna {
         const content = this.context;
 
         const matches = content.match(regExp);
-        console.log(matches);
 
-        let contentParsed = content.replace(/\{/g, "${");
+        let contentParsed = content;
 
-        Object.keys(this.state).forEach((key) => {
-          console.log(key);
-          const varRegExp = new RegExp(`${key}`, "g");
-          contentParsed = contentParsed.replace(varRegExp, `this.state.${key}`);
-        });
+        if (matches) {
+          for (let i = 0; i < matches.length; i++) {
+            Object.keys(this.state).forEach((key) => {
+              const varRegExp = new RegExp(`${key}`, "g");
+              const changed = matches[i].replace(
+                varRegExp,
+                `this.state.${key}`
+              );
 
-        this.el.innerHTML = eval("`" + contentParsed + "`");
-        this.bindEvents(this.el);
+              contentParsed = contentParsed.replace(matches[i], changed);
+            });
+          }
+
+          contentParsed = contentParsed.replace(/\{/g, "${");
+
+          this.el.innerHTML = eval("`" + contentParsed + "`");
+          this.bindEvents(this.el);
+        }
       }
     }
   }
