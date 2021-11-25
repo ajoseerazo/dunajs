@@ -43,35 +43,17 @@ class Duna {
       if (this.el.attributes["@text"]) {
         this.el.innerHTML = this.state[this.el.attributes["@text"].value];
       } else {
-        const regExp = /\{\s*.*\s*\}/g;
-
         const content = this.context;
 
-        const matches = content.match(regExp);
+        let contentParsed = content.replace(/\{/g, "${");
 
-        const variables = [];
-        if (matches) {
-          for (let i = 0; i < matches.length; i++) {
-            const variable = matches[i]
-              .replace(/\{\s/g, "")
-              .replace(/\s*\}/g, "");
+        Object.keys(this.state).forEach((key) => {
+          const varRegExp = new RegExp(`${key}`, "g");
+          contentParsed = contentParsed.replace(varRegExp, `this.state.${key}`);
+        });
 
-            const value = this.state[variable];
-
-            // console.log("New Value", value);
-
-            const regExp = new RegExp(`${matches[i]}`, "g");
-
-            const newContent = content.replace(regExp, value);
-
-            this.el.innerHTML = newContent;
-
-            variables.push(variable);
-          }
-        }
+        this.el.innerHTML = eval("`" + contentParsed + "`");
       }
-
-      // console.log("Variables", variables);
     }
   }
 

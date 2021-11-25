@@ -5,7 +5,7 @@
 
   <body>
     <div id="greetings">
-      <h1>El texto es: { text }</h1>
+      <h1>El texo es: { text.toLowerCase() }</h1>
     </div>
 
     <div id="text-example" @text="text"></div>
@@ -17,7 +17,7 @@
     <br />
     <br />
 
-    <button id="button-2" @click="onClick">Clicked { count } times</button>
+    <button id="button-2" @click="onClick">Clicked { count } { count === 1 ? 'time' : 'times'}</button>
 
     <script>
       // Greetings Component
