@@ -5,27 +5,31 @@ class Duna {
     this.state = props.state;
   }
 
-  bindEvents() {
+  bindEvents(el) {
     /*if (this.events && this.events.onClick) {
      this.el.addEventListener('click', this.events.onClick);
    }*/
 
-    if (this.el.attributes["@click"]) {
-      if (this.events[this.el.attributes["@click"].value]) {
-        this.el.addEventListener(
+    if (el.attributes["@click"]) {
+      if (this.events[el.attributes["@click"].value]) {
+        el.addEventListener(
           "click",
-          this.events[this.el.attributes["@click"].value].bind(this)
+          this.events[el.attributes["@click"].value].bind(this)
         );
       }
     }
 
-    if (this.el.attributes["@change"]) {
-      if (this.events[this.el.attributes["@change"].value]) {
-        this.el.addEventListener(
+    if (el.attributes["@change"]) {
+      if (this.events[el.attributes["@change"].value]) {
+        el.addEventListener(
           "change",
-          this.events[this.el.attributes["@change"].value].bind(this)
+          this.events[el.attributes["@change"].value].bind(this)
         );
       }
+    }
+
+    for (let i = 0; i < el.children.length; i++) {
+      this.bindEvents(el.children[i])
     }
 
     this.el.addEventListener(
@@ -43,16 +47,23 @@ class Duna {
       if (this.el.attributes["@text"]) {
         this.el.innerHTML = this.state[this.el.attributes["@text"].value];
       } else {
+        const regExp = /{([^}]*)}/g;
+
         const content = this.context;
+
+        const matches = content.match(regExp);
+        console.log(matches);
 
         let contentParsed = content.replace(/\{/g, "${");
 
         Object.keys(this.state).forEach((key) => {
+          console.log(key);
           const varRegExp = new RegExp(`${key}`, "g");
           contentParsed = contentParsed.replace(varRegExp, `this.state.${key}`);
         });
 
         this.el.innerHTML = eval("`" + contentParsed + "`");
+        this.bindEvents(this.el);
       }
     }
   }
@@ -91,7 +102,7 @@ class Duna {
       }
     }
 
-    this.bindEvents();
+    this.bindEvents(this.el);
 
     this.render();
   }

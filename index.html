@@ -5,7 +5,8 @@
 
   <body>
     <div id="greetings">
-      <h1>El texo es: { text.toLowerCase() }</h1>
+      <h1>El mensaje es: { text.toLowerCase() }</h1>
+      <button @click="onClick">{ buttonText }</button>
     </div>
 
     <div id="text-example" @text="text"></div>
@@ -17,13 +18,21 @@
     <br />
     <br />
 
-    <button id="button-2" @click="onClick">Clicked { count } { count === 1 ? 'time' : 'times'}</button>
+    <button id="button-2" @click="onClick">
+      Clicked { count } { count === 1 ? 'time' : 'times'}
+    </button>
 
     <script>
       // Greetings Component
       const greeting = new Duna({
         state: {
           text: "Hello World!",
+          buttonText: "testing",
+        },
+        events: {
+          onClick: function () {
+            this.state.buttonText = "Que más pues?";
+          },
         },
       });
       greeting.mount("#greetings");
