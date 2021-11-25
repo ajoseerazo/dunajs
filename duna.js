@@ -7,25 +7,25 @@ class Duna {
   }
 
   bindEvents(el) {
-    /*if (this.events && this.events.onClick) {
-     this.el.addEventListener('click', this.events.onClick);
-   }*/
-
-    if (el.attributes["@click"]) {
-      if (this.events[el.attributes["@click"].value]) {
-        el.addEventListener(
-          "click",
-          this.events[el.attributes["@click"].value].bind(this)
-        );
+    // console.log(`Bind ${this.id}`, el);
+    
+    if (this.el.id !== el.id || (this.el.id === el.id && !this.mounted)) {
+      if (el.attributes["@click"]) {
+        if (this.events[el.attributes["@click"].value]) {
+          el.addEventListener(
+            "click",
+            this.events[el.attributes["@click"].value].bind(this)
+          );
+        }
       }
-    }
 
-    if (el.attributes["@change"]) {
-      if (this.events[el.attributes["@change"].value]) {
-        el.addEventListener(
-          "change",
-          this.events[el.attributes["@change"].value].bind(this)
-        );
+      if (el.attributes["@change"]) {
+        if (this.events[el.attributes["@change"].value]) {
+          el.addEventListener(
+            "change",
+            this.events[el.attributes["@change"].value].bind(this)
+          );
+        }
       }
     }
 
@@ -40,12 +40,13 @@ class Duna {
 
       this.eventsListeners.stateChanged = stateChangedEventListener;
 
-      this.el.addEventListener("stateChanged", this.eventsListeners.stateChanged);
+      this.el.addEventListener("stateChanged", stateChangedEventListener);
     }
   }
 
   render() {
-    console.log("render()", this.id);
+    // console.log("render()", this.id);
+    // console.log("state", this.state);
 
     if (this.view) {
       this.el.innerHTML = this.view();
@@ -77,8 +78,10 @@ class Duna {
           contentParsed = contentParsed.replace(/\{/g, "${");
 
           this.el.innerHTML = eval("`" + contentParsed + "`");
-          this.bindEvents(this.el);
         }
+
+        // console.log("Before ->");
+        this.bindEvents(this.el);
       }
     }
   }
@@ -117,8 +120,9 @@ class Duna {
       }
     }
 
-    this.bindEvents(this.el);
+    // this.bindEvents(this.el);
 
     this.render();
+    this.mounted = true;
   }
 }
