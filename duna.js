@@ -41,7 +41,7 @@ class Duna {
       this.el.innerHTML = this.view();
     } else {
       if (this.el.attributes["@text"]) {
-        this.el.innerHTML = this.state.data[this.el.attributes["@text"].value];
+        this.el.innerHTML = this.state[this.el.attributes["@text"].value];
       } else {
         const regExp = /\{\s*.*\s*\}/g;
 
@@ -56,7 +56,7 @@ class Duna {
               .replace(/\{\s/g, "")
               .replace(/\s*\}/g, "");
 
-            const value = this.state.get(variable);
+            const value = this.state[variable];
 
             // console.log("New Value", value);
 
@@ -86,14 +86,26 @@ class Duna {
     this.context = this.el.innerHTML;
 
     if (this.state) {
-      this.state = new DunaState(this.state);
-      this.state.bindEl(this.el);
+      const el = this.el;
+      this.state = new Proxy(this.state, {
+        set: function (obj, prop, value) {
+          obj[prop] = value;
+          const event = new CustomEvent("stateChanged", { state: this.data });
+          el.dispatchEvent(event);
+          return true;
+        },
+        get: function (obj, prop) {
+          return obj[prop];
+        },
+      });
+
+      // this.state.bindEl(this.el);
 
       if (this.el.attributes["@value"]) {
         // console.log(this.el.attributes["@value"].value);
         // console.log(this.state.get(this.el.attributes["@value"].value));
 
-        this.el.value = this.state.get(this.el.attributes["@value"].value);
+        this.el.value = this.state[this.el.attributes["@value"].value];
       }
     }
 

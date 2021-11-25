@@ -1,6 +1,5 @@
 <html>
   <head>
-    <script src="./duna-state.js"></script>
     <script src="./duna.js"></script>
   </head>
 
@@ -25,20 +24,20 @@
 
       const text = new Duna({
         state: {
-          text: "<h1>This is the text</h1>"
-        }
+          text: "<h1>This is the text</h1>",
+        },
       });
-      text.mount("#text-example")
+      text.mount("#text-example");
 
       // Button Component
       const button = new Duna({
         state: {
-          buttonText: 'Hola'
+          buttonText: "Hola",
         },
         events: {
           onClick: function () {
-            this.state.set('buttonText', 'Que más pues?');
-            greeting.state.set("text", input.state.get("value"));
+            this.state.buttonText = "Que más pues?";
+            greeting.state.text = input.state.value;
           },
         },
       });
@@ -48,7 +47,7 @@
       const input = new Duna({
         events: {
           onChange: function (e) {
-            input.state.set("value", e.target.value);
+            input.state.value = e.target.value;
           },
         },
         state: {
