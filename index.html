@@ -23,7 +23,7 @@
       <!--<div>{ tasks.map(task => task) }</div>-->
 
       <div @each="task in tasks">
-        <li @click="clickOnTask">{ task }</li>
+        <li @click="clickOnTask">{ value }: { task.title }</li>
       </div>
 
       <input @change="changeInput" @value="value" />
@@ -118,7 +118,14 @@
     <script>
       const todo = new Duna({
         state: {
-          tasks: ["This is the first task", "This is another task"],
+          tasks: [
+            {
+              title: "This is the first task",
+            },
+            {
+              title: "This is another task",
+            },
+          ],
           value: "Hello",
           buttonText: "Add new task",
         },
@@ -126,7 +133,11 @@
           addTask() {
             if (this.state.value) {
               console.log("Input State", this.state.value);
-              this.state.tasks = this.state.tasks.concat([this.state.value]);
+              this.state.tasks = this.state.tasks.concat([
+                {
+                  title: this.state.value,
+                },
+              ]);
               this.state.value = "";
               this.state.buttonText = "Add other task";
             }

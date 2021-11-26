@@ -105,6 +105,8 @@ class Duna {
 
       const innerContent = templateEl ? templateEl.template : forEl.innerHTML;
 
+      let contentParsed = innerContent;
+
       if (!this.ctx[stateVar]) {
         this.ctx[stateVar] = [];
       }
@@ -121,19 +123,62 @@ class Duna {
       }
 
       for (let i = 0; i < this.state[stateVar].length; i++) {
-        const func = new Function(
+        Object.keys(this.state).forEach((key) => {
+          console.log("Key", key);
+
+          const index = innerContent.indexOf(key);
+
+          if (index !== -1) {
+            const varRegExp = new RegExp(`${key}`, "g");
+            console.log(innerContent);
+            const changed = innerContent.replace(varRegExp, `state.${key}`);
+
+            console.log(changed);
+
+            contentParsed = changed;
+
+            console.log("Partial Content Parsed", contentParsed);
+          }
+        });
+
+        console.log("INNER CONTENT PARSED", contentParsed);
+
+        console.log(
           "const " +
             innerVar +
             " = " +
             (typeof this.state[stateVar][i] === "string"
               ? '"' + this.state[stateVar][i] + '"'
+              : Array.isArray(this.state[stateVar])
+              ? typeof this.state[stateVar][i] === "object"
+                ? JSON.stringify(this.state[stateVar][i])
+                : this.state[stateVar][i]
               : this.state[stateVar][i]) +
             "; return `" +
-            innerContent.replace(/\{/g, "${") +
+            contentParsed.replace(/\{/g, "${") +
             "`"
         );
 
-        newInnerContent += func();
+        const func = new Function(
+          "state",
+          "const " +
+            innerVar +
+            " = " +
+            (typeof this.state[stateVar][i] === "string"
+              ? '"' + this.state[stateVar][i] + '"'
+              : Array.isArray(this.state[stateVar])
+              ? typeof this.state[stateVar][i] === "object"
+                ? JSON.stringify(this.state[stateVar][i])
+                : this.state[stateVar][i]
+              : this.state[stateVar][i]) +
+            "; return `" +
+            contentParsed.replace(/\{/g, "${") +
+            "`"
+        );
+
+        newInnerContent += func(this.state);
+
+        console.log("PartialNew", newInnerContent);
       }
 
       console.log("New Inner Content", newInnerContent);
@@ -195,51 +240,56 @@ class Duna {
       console.log("MATCHES", matches);
 
       if (matches) {
-        for (let i = 0; i < matches.length; i++) {
-          console.log("Match", matches[i]);
-          Object.keys(this.state).forEach((key) => {
-            console.log("Key", key);
+        if (!isRoot) {
+          for (let i = 0; i < matches.length; i++) {
+            console.log("Match", matches[i]);
+            Object.keys(this.state).forEach((key) => {
+              console.log("Key", key);
 
-            const index = matches[i].indexOf(key);
+              const index = matches[i].indexOf(key);
 
-            if (index !== -1) {
-              if (!this.ctx[key]) {
-                this.ctx[key] = [];
+              if (index !== -1) {
+                if (!this.ctx[key]) {
+                  this.ctx[key] = [];
+                }
+
+                let templateEl = this.ctx[key].find(
+                  (_el) => _el.virtualId === el.virtualId
+                );
+
+                console.log("EL INDEX", templateEl);
+
+                if (!templateEl) {
+                  templateEl = {
+                    virtualId: el.virtualId,
+                    el,
+                    template: el.innerHTML,
+                  };
+                  this.ctx[key].push(templateEl);
+                }
+
+                console.log(this.ctx[key]);
+
+                const varRegExp = new RegExp(`${key}`, "g");
+                const changed = matches[i].replace(
+                  varRegExp,
+                  `this.state.${key}`
+                );
+
+                console.log("Var", varRegExp);
+                console.log("State", this.state);
+                console.log("ctx", ctx);
+                console.log(ctx ? ctx.template : this.ctx[key].template);
+
+                contentParsed = templateEl.template.replace(
+                  matches[i],
+                  changed
+                );
+
+                console.log("Partial Content Parsed", contentParsed);
               }
-
-              let templateEl = this.ctx[key].find(
-                (_el) => _el.virtualId === el.virtualId
-              );
-
-              console.log("EL INDEX", templateEl);
-
-              if (!templateEl) {
-                templateEl = {
-                  virtualId: el.virtualId,
-                  el,
-                  template: el.innerHTML,
-                };
-                this.ctx[key].push(templateEl);
-              }
-
-              console.log(this.ctx[key]);
-
-              const varRegExp = new RegExp(`${key}`, "g");
-              const changed = matches[i].replace(
-                varRegExp,
-                `this.state.${key}`
-              );
-
-              console.log("Var", varRegExp);
-              console.log("State", this.state);
-              console.log("ctx", ctx);
-              console.log(ctx ? ctx.template : this.ctx[key].template);
-
-              contentParsed = templateEl.template.replace(matches[i], changed);
-
-              console.log("Partial Content Parsed", contentParsed);
-            }
-          });
+            });
+          }
         }
 
         contentParsed = contentParsed.replace(/\{/g, "${");
