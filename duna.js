@@ -1,3 +1,9 @@
+let s4 = () => {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+};
+
 class Duna {
   constructor(props) {
     this.events = props.events;
@@ -5,25 +11,32 @@ class Duna {
     this.state = props.state;
     this.eventsListeners = {};
     this.for = null;
+    this.ctx = {};
   }
 
   bindEvents(el) {
-    // console.log(`Bind ${this.id}`, el);
-    console.log(el);
+    console.log(`Bind ${this.id}`, el);
+    // console.log(el);
 
     if (this.el.id !== el.id || (this.el.id === el.id && !this.mounted)) {
+      console.log("HERE");
       if (el.attributes["@click"]) {
         if (this.events[el.attributes["@click"].value]) {
-          el.addEventListener(
-            "click",
-            this.events[el.attributes["@click"].value].bind(this)
-          );
+          el.addEventListener("click", (e) => {
+            const func = this.events[el.attributes["@click"].value].bind(this);
+            const index = Array.prototype.indexOf.call(
+              el.parentNode.children,
+              el
+            );
+
+            func(index);
+          });
         }
       }
 
       if (el.attributes["@change"]) {
         if (this.events[el.attributes["@change"].value]) {
-          el.addEventListener("change", (e) => {
+          el.addEventListener("keyup", (e) => {
             const func = this.events[el.attributes["@change"].value].bind(this);
             func(e.target.value);
           });
@@ -32,7 +45,31 @@ class Duna {
     }
 
     if (el.attributes["@value"]) {
-      el.value = this.state[el.attributes["@value"].value];
+      const key = el.attributes["@value"].value;
+
+      if (!this.ctx[key]) {
+        this.ctx[key] = [];
+      }
+
+      let templateEl = this.ctx[key].find(
+        (_el) => _el.virtualId === el.virtualId
+      );
+
+      console.log("EL INDEX", templateEl);
+
+      if (!templateEl) {
+        templateEl = {
+          virtualId: el.virtualId,
+          el,
+          attribute: "@value",
+          template: el.innerHTML,
+        };
+        this.ctx[key].push(templateEl);
+      }
+
+      el.value = this.state[key];
+
+      console.log("INPUT TEMPLATE", templateEl);
     }
 
     for (let i = 0; i < el.children.length; i++) {
@@ -41,7 +78,7 @@ class Duna {
 
     if (!this.eventsListeners.stateChanged) {
       const stateChangedEventListener = function () {
-        this.render();
+        // this.virtualDOM(this.el);
       }.bind(this);
 
       this.eventsListeners.stateChanged = stateChangedEventListener;
@@ -51,19 +88,37 @@ class Duna {
   }
 
   parseFor(el) {
-    const forEl = el.querySelector(["*[\\@each]"]);
+    console.log("PARSING FOR");
+    const forEl = el.attributes["@each"]
+      ? el
+      : el.querySelector(["*[\\@each]"]);
 
     let newInnerContent = "";
 
     if (forEl) {
-      const innerContent = this.for || forEl.innerHTML;
-
-      if (!this.for) {
-        this.for = forEl.innerHTML;
-      }
-
       const [innerVar, stateVar] =
         forEl.attributes["@each"].value.split(" in ");
+
+      let templateEl = this.ctx[stateVar]
+        ? this.ctx[stateVar].find((_el) => _el.virtualId === el.virtualId)
+        : null;
+
+      const innerContent = templateEl ? templateEl.template : forEl.innerHTML;
+
+      if (!this.ctx[stateVar]) {
+        this.ctx[stateVar] = [];
+      }
+
+      console.log("EL INDEX", templateEl);
+
+      if (!templateEl) {
+        templateEl = {
+          virtualId: el.virtualId,
+          el,
+          template: el.innerHTML,
+        };
+        this.ctx[stateVar].push(templateEl);
+      }
 
       for (let i = 0; i < this.state[stateVar].length; i++) {
         const func = new Function(
@@ -82,6 +137,7 @@ class Duna {
       }
 
       console.log("New Inner Content", newInnerContent);
+      console.log("TEMPLATE", innerContent);
 
       return {
         oldContent: innerContent,
@@ -90,6 +146,128 @@ class Duna {
     }
 
     return {};
+  }
+
+  virtualDOM(el, ctx) {
+    console.log("SUper el", el);
+
+    if (!el.virtualId) {
+      el.virtualId = s4();
+    }
+    console.log("El", el);
+    console.log(el.virtualId);
+    console.log(this.state);
+    console.log("CTX", ctx);
+
+    /*if (!this.ctx[el.virtualId]) {
+      this.ctx[el.virtualId] = {}
+    }
+
+    console.log(this.ctx[el.virtualId]);*/
+
+    console.log(el.innerHTML.trim());
+    console.log(el.innerText.trim());
+    console.log(el.innerHTML.trim() === el.innerText.trim());
+
+    const isRoot = !!el.attributes["@each"];
+
+    console.log("Root", el.html);
+
+    if (el.innerHTML.trim() === el.innerText.trim() || isRoot) {
+      const regExp = /{([^}]*)}/g;
+
+      console.log("ELLLLLL", el);
+
+      let contentParsed = "";
+
+      const { oldContent, newInnerContent } = this.parseFor(el);
+
+      if (oldContent !== undefined && newInnerContent !== undefined) {
+        console.log("SUPER TEMPLATE", ctx ? ctx.template : el.innerHTML);
+        contentParsed = newInnerContent;
+        console.log("NEW INNER CONTENT OUT", newInnerContent);
+      }
+
+      const matches = ctx
+        ? ctx.template.match(regExp)
+        : el.innerText.match(regExp);
+
+      console.log("MATCHES", matches);
+
+      if (matches) {
+        for (let i = 0; i < matches.length; i++) {
+          console.log("Match", matches[i]);
+          Object.keys(this.state).forEach((key) => {
+            console.log("Key", key);
+
+            const index = matches[i].indexOf(key);
+
+            if (index !== -1) {
+              if (!this.ctx[key]) {
+                this.ctx[key] = [];
+              }
+
+              let templateEl = this.ctx[key].find(
+                (_el) => _el.virtualId === el.virtualId
+              );
+
+              console.log("EL INDEX", templateEl);
+
+              if (!templateEl) {
+                templateEl = {
+                  virtualId: el.virtualId,
+                  el,
+                  template: el.innerHTML,
+                };
+                this.ctx[key].push(templateEl);
+              }
+
+              console.log(this.ctx[key]);
+
+              const varRegExp = new RegExp(`${key}`, "g");
+              const changed = matches[i].replace(
+                varRegExp,
+                `this.state.${key}`
+              );
+
+              console.log("Var", varRegExp);
+              console.log("State", this.state);
+              console.log("ctx", ctx);
+              console.log(ctx ? ctx.template : this.ctx[key].template);
+
+              contentParsed = templateEl.template.replace(matches[i], changed);
+
+              console.log("Partial Content Parsed", contentParsed);
+            }
+          });
+        }
+
+        contentParsed = contentParsed.replace(/\{/g, "${");
+
+        console.log("Content Parsed", contentParsed);
+
+        el.innerHTML = eval("`" + contentParsed + "`");
+
+        if (this.mounted) {
+          this.bindEvents(el);
+        }
+        // this.el.innerHTML = eval("`" + contentParsed + "`");
+      }
+      console.log("Bind to this", el);
+
+      console.log(this.ctx);
+    }
+
+    if (!isRoot) {
+      for (let i = 0; i < el.children.length; i++) {
+        console.log(el.children[i]);
+        this.virtualDOM(el.children[i], ctx);
+      }
+    }
+
+    /*this.ctx["tasks"] = [document.querySelector("input")];
+
+    this.ctx["tasks"][0].value = "Prro"*/
   }
 
   render() {
@@ -152,12 +330,33 @@ class Duna {
 
     if (this.state) {
       const el = this.el;
+      const that = this;
       this.state = new Proxy(this.state, {
         set: function (obj, prop, value) {
-          obj[prop] = value;
-          const event = new CustomEvent("stateChanged", { state: this.data });
-          el.dispatchEvent(event);
-          return true;
+          console.log("PROP", prop);
+
+          if (value !== obj[prop]) {
+            obj[prop] = value;
+            console.log(that.ctx[prop]);
+
+            if (that.ctx[prop]) {
+              for (let i = 0; i < that.ctx[prop].length; i++) {
+                if (that.ctx[prop][i].attribute === "@value") {
+                  that.ctx[prop][i].el.value = value;
+                } else {
+                  let templateEl = that.ctx[prop].find(
+                    (_el) => _el.virtualId === that.ctx[prop][i].el.virtualId
+                  );
+
+                  that.virtualDOM(that.ctx[prop][i].el, templateEl);
+                }
+              }
+            }
+
+            const event = new CustomEvent("stateChanged", { state: this.data });
+            el.dispatchEvent(event);
+            return true;
+          }
         },
         get: function (obj, prop) {
           return obj[prop];
@@ -167,7 +366,11 @@ class Duna {
 
     // this.bindEvents(this.el);
 
-    this.render();
+    // this.render();
+
+    this.virtualDOM(this.el);
+    this.bindEvents(this.el);
+
     this.mounted = true;
   }
 }

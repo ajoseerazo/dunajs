@@ -4,17 +4,35 @@
   </head>
 
   <body>
+    <!--<h1 id="h1">
+      <span><span>Hola</span><span> { text }</span></span>
+      <button @click="onClick">{ buttonText }</button>
+      <b>{ text }</b>
+      <p>{ buttonText.toLowerCase() }</p>
+      <div>{ value }</div>
+      <input @change="changeInput" @value="value" />
+    </h1>-->
+
+    <button id="button-1" @click="onClick">{ buttonText }</button>
+
+    <input id="input-1" @value="value" />
+
     <h1>Todo App</h1>
 
     <div id="todo-app">
+      <!--<div>{ tasks.map(task => task) }</div>-->
+
       <div @each="task in tasks">
-        <div @click="clickOnTask">{ task }</div>
+        <li @click="clickOnTask">{ task }</li>
       </div>
 
       <input @change="changeInput" @value="value" />
-      <button @click="addTask" style="margin-top: 20px">Add Task</button>
 
-      {value}
+      <button @click="addTask" style="margin-top: 20px">
+        <span>{ buttonText }</span>
+      </button>
+
+      <span>{value}</span>
     </div>
     <!--<div id="greetings">
       <h1>El texto es: { text.toLowerCase() }</h1>
@@ -100,26 +118,81 @@
     <script>
       const todo = new Duna({
         state: {
-          tasks: [],
-          value: "",
+          tasks: ["This is the first task", "This is another task"],
+          value: "Hello",
+          buttonText: "Add new task",
         },
         events: {
           addTask() {
-            console.log("Input State", this.state.value);
-            this.state.tasks = this.state.tasks.concat([this.state.value]);
-            this.state.value = "";
+            if (this.state.value) {
+              console.log("Input State", this.state.value);
+              this.state.tasks = this.state.tasks.concat([this.state.value]);
+              this.state.value = "";
+              this.state.buttonText = "Add other task";
+            }
           },
           changeInput(value) {
             console.log(value);
             this.state.value = value;
           },
-          clickOnTask(e) {
-            alert(e.target.innerHTML);
-          }
+          clickOnTask(index) {
+            console.log(this.state.tasks[index]);
+          },
         },
       });
 
       todo.mount("#todo-app");
     </script>
+
+    <script>
+      const input = new Duna({
+        state: {
+          value: "Super value",
+        },
+      });
+      input.mount("#input-1");
+
+      const button = new Duna({
+        state: {
+          buttonText: "Click on me!",
+        },
+        events: {
+          onClick() {
+            this.state.buttonText = "Clicked";
+            input.state.value = "Puta";
+          },
+        },
+      });
+      button.mount("#button-1");
+    </script>
+
+    <!--<script>
+      const h1 = new Duna({
+        state: {
+          text: "Hola!",
+          buttonText: "Click Me!",
+          value: "",
+        },
+        events: {
+          onClick() {
+            alert("Mamalo");
+          },
+          changeInput(value) {
+            this.state.value = value;
+          },
+        },
+      });
+      h1.mount("#h1");
+
+      const button1 = new Duna({
+        events: {
+          onClick() {
+            h1.state.text = `Como estas ${h1.state.value}?`;
+            h1.state.buttonText = "Fuck";
+          },
+        },
+      });
+      button1.mount("#button-1");
+    </script>-->
   </body>
 </html>
