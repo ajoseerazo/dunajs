@@ -41,6 +41,18 @@
 
       <span>{value}</span>
     </div>
+
+    <br />
+    <br />
+    <br />
+    <br />
+
+    <div id="reactive">
+      <button @click="handleClick">Count: {count}</button>
+
+      <p><span>{count}</span> * 2 = <span>{doubled}</span></p>
+      <p><span>{doubled}</span> * 2 = <span>{quadrupled}</span></p>
+    </div>
     <!--<div id="greetings">
       <h1>El texto es: { text.toLowerCase() }</h1>
       <button @click="onClick">{ buttonText }</button>
@@ -202,6 +214,24 @@
         },
       });
       button.mount("#button-1");
+    </script>
+
+    <script>
+      const reactive = new Duna({
+        state: {
+          count: 1,
+          doubled: 2,
+          quadrupled: 4,
+        },
+        events: {
+          handleClick() {
+            this.state.count += 1;
+            this.state.doubled = this.state.count * 2;
+            this.state.quadrupled = this.state.doubled * 2;
+          },
+        },
+      });
+      reactive.mount("#reactive");
     </script>
 
     <!--<script>

@@ -318,7 +318,7 @@ class Duna {
 
         el.innerHTML = eval("`" + contentParsed + "`");
 
-        if (this.mounted) {
+        if (this.mounted && isRoot) {
           this.bindEvents(el);
         }
         // this.el.innerHTML = eval("`" + contentParsed + "`");
