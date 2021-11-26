@@ -72,6 +72,16 @@ class Duna {
       console.log("INPUT TEMPLATE", templateEl);
     }
 
+    if (el.attributes["@checked"]) {
+      console.log(el.attributes["@checked"].value);
+      if (
+        el.attributes["@checked"].value === "true" ||
+        el.attributes["@checked"].value === "false"
+      ) {
+        el.checked = JSON.parse(el.attributes["@checked"].value);
+      }
+    }
+
     for (let i = 0; i < el.children.length; i++) {
       this.bindEvents(el.children[i]);
     }

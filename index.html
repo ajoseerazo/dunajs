@@ -23,7 +23,10 @@
       <!--<div>{ tasks.map(task => task) }</div>-->
 
       <div @each="task in tasks">
-        <li @click="clickOnTask">{ value }: { task.title }</li>
+        <li @click="clickOnTask">
+          <input type="checkbox" @checked="{task.done}"/>
+          <span>{ value }: { task.title }</span>
+        </li>
       </div>
 
       <input @change="changeInput" @value="value" />
@@ -121,9 +124,11 @@
           tasks: [
             {
               title: "This is the first task",
+              done: true,
             },
             {
               title: "This is another task",
+              done: false,
             },
           ],
           value: "Hello",
