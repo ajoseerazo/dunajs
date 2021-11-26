@@ -10,7 +10,7 @@
       <b>{ text }</b>
       <p>{ buttonText.toLowerCase() }</p>
       <div>{ value }</div>
-      <input @change="changeInput" @value="value" />
+      <input @changeValue="changeInput" @value="value" />
     </h1>-->
 
     <button id="button-1" @click="onClick">{ buttonText }</button>
@@ -24,12 +24,16 @@
 
       <div @each="task in tasks">
         <li @click="clickOnTask">
-          <input type="checkbox" @checked="{task.done}"/>
+          <input
+            type="checkbox"
+            @checked="{task.done}"
+            @change="onChangeTaskCheckbox"
+          />
           <span>{ value }: { task.title }</span>
         </li>
       </div>
 
-      <input @change="changeInput" @value="value" />
+      <input @changeValue="changeInput" @value="value" />
 
       <button @click="addTask" style="margin-top: 20px">
         <span>{ buttonText }</span>
@@ -44,7 +48,7 @@
 
     <div id="text-example" @text="text"></div>
 
-    <input id="input" @change="onChange" @value="value" />
+    <input id="input" @changeValue="onChange" @value="value" />
     <button id="button" @click="onClick">{ buttonText }</button>
 
     <br />
@@ -148,11 +152,29 @@
             }
           },
           changeInput(value) {
-            console.log(value);
             this.state.value = value;
           },
           clickOnTask(index) {
             console.log(this.state.tasks[index]);
+          },
+          onChangeTaskCheckbox(checked, index) {
+            const newTaks = [];
+            for (let i = 0; i < this.state.tasks.length; i++) {
+              if (i !== 1) {
+                newTaks.push(this.state.tasks[i]);
+              } else {
+                newTaks.push({
+                  ...this.state.tasks[i],
+                  done: true,
+                });
+              }
+            }
+
+            console.log("New Tasks", newTaks);
+
+            this.state.tasks = newTaks;
+
+            console.log(this.state);
           },
         },
       });

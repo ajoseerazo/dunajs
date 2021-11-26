@@ -34,11 +34,21 @@ class Duna {
         }
       }
 
+      if (el.attributes["@changeValue"]) {
+        if (this.events[el.attributes["@changeValue"].value]) {
+          el.addEventListener("keyup", (e) => {
+            const func =
+              this.events[el.attributes["@changeValue"].value].bind(this);
+            func(e.target.value);
+          });
+        }
+      }
+
       if (el.attributes["@change"]) {
         if (this.events[el.attributes["@change"].value]) {
-          el.addEventListener("keyup", (e) => {
+          el.addEventListener("change", (e) => {
             const func = this.events[el.attributes["@change"].value].bind(this);
-            func(e.target.value);
+            func(e.type === "checkbox" ? e.target.checked : e.target.value);
           });
         }
       }
