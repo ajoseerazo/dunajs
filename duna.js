@@ -301,10 +301,9 @@ class Duna {
                 console.log("ctx", ctx);
                 console.log(ctx ? ctx.template : this.ctx[key].template);
 
-                contentParsed = templateEl.template.replace(
-                  matches[i],
-                  changed
-                );
+                contentParsed = contentParsed
+                  ? contentParsed.replace(matches[i], changed)
+                  : templateEl.template.replace(matches[i], changed);
 
                 console.log("Partial Content Parsed", contentParsed);
               }
