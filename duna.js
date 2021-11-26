@@ -238,6 +238,20 @@ class Duna {
 
     console.log("Root", el.html);
 
+    console.log(
+      "Child Nodes",
+      Array.from(el.childNodes).filter((node) => node.nodeType === 3)
+    );
+
+    const textNodes = Array.from(el.childNodes).filter(
+      (node) => node.nodeType === 3
+    );
+
+    for (let i = 0; i < textNodes.length; i++) {
+      console.log("NODE VALUES");
+      console.log(textNodes[i].nodeValue);
+    }
+
     if (el.innerHTML.trim() === el.innerText.trim() || isRoot) {
       const regExp = /{([^}]*)}/g;
 
