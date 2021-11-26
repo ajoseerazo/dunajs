@@ -4,7 +4,19 @@
   </head>
 
   <body>
-    <div id="greetings">
+    <h1>Todo App</h1>
+
+    <div id="todo-app">
+      <div @each="task in tasks">
+        <div @click="clickOnTask">{ task }</div>
+      </div>
+
+      <input @change="changeInput" @value="value" />
+      <button @click="addTask" style="margin-top: 20px">Add Task</button>
+
+      {value}
+    </div>
+    <!--<div id="greetings">
       <h1>El texto es: { text.toLowerCase() }</h1>
       <button @click="onClick">{ buttonText }</button>
     </div>
@@ -83,6 +95,31 @@
         },
       });
       button2.mount("#button-2");
+    </script>-->
+
+    <script>
+      const todo = new Duna({
+        state: {
+          tasks: [],
+          value: "",
+        },
+        events: {
+          addTask() {
+            console.log("Input State", this.state.value);
+            this.state.tasks = this.state.tasks.concat([this.state.value]);
+            this.state.value = "";
+          },
+          changeInput(value) {
+            console.log(value);
+            this.state.value = value;
+          },
+          clickOnTask(e) {
+            alert(e.target.innerHTML);
+          }
+        },
+      });
+
+      todo.mount("#todo-app");
     </script>
   </body>
 </html>

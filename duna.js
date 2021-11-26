@@ -4,11 +4,13 @@ class Duna {
     this.view = props.view;
     this.state = props.state;
     this.eventsListeners = {};
+    this.for = null;
   }
 
   bindEvents(el) {
     // console.log(`Bind ${this.id}`, el);
-    
+    console.log(el);
+
     if (this.el.id !== el.id || (this.el.id === el.id && !this.mounted)) {
       if (el.attributes["@click"]) {
         if (this.events[el.attributes["@click"].value]) {
@@ -21,12 +23,16 @@ class Duna {
 
       if (el.attributes["@change"]) {
         if (this.events[el.attributes["@change"].value]) {
-          el.addEventListener(
-            "change",
-            this.events[el.attributes["@change"].value].bind(this)
-          );
+          el.addEventListener("change", (e) => {
+            const func = this.events[el.attributes["@change"].value].bind(this);
+            func(e.target.value);
+          });
         }
       }
+    }
+
+    if (el.attributes["@value"]) {
+      el.value = this.state[el.attributes["@value"].value];
     }
 
     for (let i = 0; i < el.children.length; i++) {
@@ -42,6 +48,48 @@ class Duna {
 
       this.el.addEventListener("stateChanged", stateChangedEventListener);
     }
+  }
+
+  parseFor(el) {
+    const forEl = el.querySelector(["*[\\@each]"]);
+
+    let newInnerContent = "";
+
+    if (forEl) {
+      const innerContent = this.for || forEl.innerHTML;
+
+      if (!this.for) {
+        this.for = forEl.innerHTML;
+      }
+
+      const [innerVar, stateVar] =
+        forEl.attributes["@each"].value.split(" in ");
+
+      for (let i = 0; i < this.state[stateVar].length; i++) {
+        const func = new Function(
+          "const " +
+            innerVar +
+            " = " +
+            (typeof this.state[stateVar][i] === "string"
+              ? '"' + this.state[stateVar][i] + '"'
+              : this.state[stateVar][i]) +
+            "; return `" +
+            innerContent.replace(/\{/g, "${") +
+            "`"
+        );
+
+        newInnerContent += func();
+      }
+
+      console.log("New Inner Content", newInnerContent);
+
+      return {
+        oldContent: innerContent,
+        newInnerContent,
+      };
+    }
+
+    return {};
   }
 
   render() {
@@ -61,6 +109,12 @@ class Duna {
         const matches = content.match(regExp);
 
         let contentParsed = content;
+
+        const { oldContent, newInnerContent } = this.parseFor(this.el);
+
+        if (oldContent !== undefined && newInnerContent !== undefined) {
+          contentParsed = contentParsed.replace(oldContent, newInnerContent);
+        }
 
         if (matches) {
           for (let i = 0; i < matches.length; i++) {
@@ -109,15 +163,6 @@ class Duna {
           return obj[prop];
         },
       });
-
-      // this.state.bindEl(this.el);
-
-      if (this.el.attributes["@value"]) {
-        // console.log(this.el.attributes["@value"].value);
-        // console.log(this.state.get(this.el.attributes["@value"].value));
-
-        this.el.value = this.state[this.el.attributes["@value"].value];
-      }
     }
 
     // this.bindEvents(this.el);
