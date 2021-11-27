@@ -230,9 +230,9 @@ class Duna {
 
     console.log(this.ctx[el.virtualId]);*/
 
-    console.log(el.innerHTML.trim());
+    /*console.log(el.innerHTML.trim());
     console.log(el.innerText.trim());
-    console.log(el.innerHTML.trim() === el.innerText.trim());
+    console.log(el.innerHTML.trim() === el.innerText.trim());*/
 
     const isRoot = !!el.attributes["@each"];
 
@@ -247,12 +247,104 @@ class Duna {
       (node) => node.nodeType === 3
     );
 
-    for (let i = 0; i < textNodes.length; i++) {
+    const regExp = /{([^}]*)}/g;
+    for (let j = 0; j < textNodes.length; j++) {
       console.log("NODE VALUES");
-      console.log(textNodes[i].nodeValue);
+      console.log(textNodes[j].nodeValue);
+
+      const matches = textNodes[j].nodeValue.match(regExp);
+
+      console.log("TEXT Matches", matches);
+
+      if (matches && matches.length > 0) {
+        for (let i = 0; i < matches.length; i++) {
+          console.log("Match", matches[i]);
+          Object.keys(this.state).forEach((key) => {
+            console.log("Key", key);
+
+            const index = matches[i].indexOf(key);
+
+            if (index !== -1) {
+              console.log("SI MATCHES", key);
+
+              console.log(textNodes[j].nodeValue);
+
+              // textNodes[j].nodeValue = "MAMALO"
+              if (!this.ctx[key]) {
+                this.ctx[key] = [];
+              }
+
+              let templateEl = this.ctx[key].find(
+                (_el) => _el.virtualId === el.virtualId
+              );
+
+              console.log("EL INDEX", templateEl);
+
+              if (!templateEl) {
+                templateEl = {
+                  virtualId: el.virtualId,
+                  el: textNodes[j],
+                  // template: el.innerHTML,
+                };
+                this.ctx[key].push(templateEl);
+              }
+
+              console.log("CONTEXTKEY", this.ctx[key]);
+
+              const varRegExp = new RegExp(`({${key}})`);
+
+              console.log("Var", varRegExp);
+
+              console.log(templateEl.el);
+
+              console.log(templateEl.el.nodeValue);
+
+              console.log(templateEl.el.nodeValue.split(varRegExp));
+
+              console.log(templateEl.el.parentNode);
+
+              const parentNode = templateEl.el.parentNode;
+
+              textNodes[j].remove();
+
+              const texts = templateEl.el.nodeValue.split(varRegExp);
+
+              for (let k = 0; k < texts.length; k++) {
+                const textNode = document.createTextNode(texts[k]);
+                if (textNode.nodeValue !== "") {
+                  parentNode.appendChild(textNode);
+
+                  if (textNode.nodeValue.trim() === matches[i].trim()) {
+                    alert();
+                    textNode.nodeValue = this.state[key];
+                  }
+                }
+              }
+
+              // templateEl.el.nodeValue = this.state[key];
+
+              /*const varRegExp = new RegExp(`${key}`, "g");
+              const changed = matches[i].replace(
+                varRegExp,
+                `this.state.${key}`
+              );
+
+              console.log("State", this.state);
+              console.log("ctx", ctx);
+              console.log(ctx ? ctx.template : this.ctx[key].template);
+
+              contentParsed = contentParsed
+                ? contentParsed.replace(matches[i], changed)
+                : templateEl.template.replace(matches[i], changed);
+
+              console.log("Partial Content Parsed", contentParsed);*/
+            }
+          });
+        }
+      }
     }
 
-    if (el.innerHTML.trim() === el.innerText.trim() || isRoot) {
+    /*if (el.innerHTML.trim() === el.innerText.trim() || isRoot) {
       const regExp = /{([^}]*)}/g;
 
       console.log("ELLLLLL", el);
@@ -339,7 +431,7 @@ class Duna {
       console.log("Bind to this", el);
 
       console.log(this.ctx);
-    }
+    }*/
 
     if (!isRoot) {
       for (let i = 0; i < el.children.length; i++) {

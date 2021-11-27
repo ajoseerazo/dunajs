@@ -13,14 +13,13 @@
       <input @changeValue="changeInput" @value="value" />
     </h1>-->
 
-    <button id="button-1" @click="onClick">{ buttonText }</button>
+    <!--<button id="button-1" @click="onClick">{ buttonText }</button>
 
     <input id="input-1" @value="value" />
 
     <h1>Todo App</h1>
 
     <div id="todo-app">
-      <!--<div>{ tasks.map(task => task) }</div>-->
 
       <div @each="task in tasks">
         <li @click="clickOnTask">
@@ -45,13 +44,13 @@
     <br />
     <br />
     <br />
-    <br />
+    <br />-->
 
     <div id="reactive">
       <button @click="handleClick">Count: {count}</button>
 
-      <p>{count} * 2 = {doubled}</p>
-      <p><span>{doubled}</span> * 2 = <span>{quadrupled}</span></p>
+      <!--<p>{count} * 2 = {doubled}</p>
+      <p><span>{doubled}</span> * 2 = <span>{quadrupled}</span></p>-->
     </div>
     <!--<div id="greetings">
       <h1>El texto es: { text.toLowerCase() }</h1>
@@ -134,7 +133,7 @@
       button2.mount("#button-2");
     </script>-->
 
-    <script>
+    <!--<script>
       const todo = new Duna({
         state: {
           tasks: [
@@ -214,7 +213,7 @@
         },
       });
       button.mount("#button-1");
-    </script>
+    </script>-->
 
     <script>
       const reactive = new Duna({
