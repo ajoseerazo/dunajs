@@ -107,7 +107,7 @@ class Duna {
     }
   }
 
-  parseFor2(el) {
+  parseFor2(el, templateEl) {
     console.log("FOR", el);
 
     const forEl = el.attributes["@each"]
@@ -118,7 +118,16 @@ class Duna {
       const [innerVar, stateVar] =
         forEl.attributes["@each"].value.split(" in ");
 
-      const innerContent = forEl.innerHTML;
+      console.log(this.ctx[stateVar]);
+      console.log(el);
+
+      console.log("templateEl", templateEl);
+
+      const innerContent = templateEl || forEl.innerHTML;
+
+      if (!templateEl) {
+        this.addToContext(stateVar, el, el.innerHTML);
+      }
 
       let forContent = "";
       for (let i = 0; i < this.state[stateVar].length; i++) {
@@ -325,7 +334,11 @@ class Duna {
 
             console.log("SUPER TEXT NODE", textNode);
             if (index !== -1) {
-              this.addToContext(key, count === 0 ? currentNode : textNode, textNode.nodeValue);
+              this.addToContext(
+                key,
+                count === 0 ? currentNode : textNode,
+                textNode.nodeValue
+              );
             }
           });
 
@@ -742,24 +755,51 @@ class Duna {
 
           if (value !== obj[prop]) {
             obj[prop] = value;
-            console.log(that.ctx[prop]);
+            console.log("CTX-PROP", that.ctx[prop]);
 
             if (that.ctx[prop]) {
               for (let i = 0; i < that.ctx[prop].length; i++) {
                 if (that.ctx[prop][i].attribute === "@value") {
                   that.ctx[prop][i].el.value = value;
                 } else {
-                  /*let templateEl = that.ctx[prop].find(
+                  console.log(that.ctx[prop][i].el.attributes);
+                  if (
+                    that.ctx[prop][i].el.attributes &&
+                    that.ctx[prop][i].el.attributes["@each"]
+                  ) {
+                    console.log("VirtualId", that.ctx[prop][i].el.virtualId);
+                    that.parseFor2(
+                      that.ctx[prop][i].el,
+                      that.ctx[prop][i].template
+                    );
+
+                    console.log(that.ctx[prop][i].el);
+
+                    for (
+                      let k = 0;
+                      k < Array.from(that.ctx[prop][i].el.childNodes).length;
+                      k++
+                    ) {
+                      // console.log(Array.from(el.childNodes)[i]);
+                      that.virtualDOM(
+                        Array.from(that.ctx[prop][i].el.childNodes)[k]
+                      );
+                    }
+
+                    // that.virtualDOM(that.ctx[prop][i].el);
+                  } else {
+                    /*let templateEl = that.ctx[prop].find(
                     (_el) => _el.virtualId === that.ctx[prop][i].el.virtualId
                   );
 
                   that.virtualDOM(that.ctx[prop][i].el, templateEl);*/
-                  console.log(that.ctx[prop][i].template);
-                  that.ctx[prop][i].el.nodeValue = eval(
-                    "`" +
-                      that.ctx[prop][i].template.replace(/this/g, "that") +
-                      "`"
-                  );
+                    console.log(that.ctx[prop][i].template);
+                    that.ctx[prop][i].el.nodeValue = eval(
+                      "`" +
+                        that.ctx[prop][i].template.replace(/this/g, "that") +
+                        "`"
+                    );
+                  }
                 }
               }
             }

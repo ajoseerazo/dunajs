@@ -17,7 +17,7 @@
 
     <input id="input-1" @value="value" />-->
 
-    <!--<h1>Todo App</h1>-->
+    <h1>Todo App</h1>
 
     <div id="todo-app">
       <div @each="task in tasks">
@@ -161,7 +161,7 @@
                   title: this.state.value,
                 },
               ]);
-              this.state.value = "";
+              // this.state.value = "";
               this.state.buttonText = "Add other task";
             }
           },
