@@ -208,29 +208,9 @@ class Duna {
         this.bindAttrs(htmlEl, {
           [innerVar]: this.state[stateVar][i],
         });
-        /*const func = new Function(
-          "state",
-          "const " +
-            innerVar +
-            " = " +
-            (typeof this.state[stateVar][i] === "string"
-              ? '"' + this.state[stateVar][i] + '"'
-              : Array.isArray(this.state[stateVar])
-              ? typeof this.state[stateVar][i] === "object"
-                ? JSON.stringify(this.state[stateVar][i])
-                : this.state[stateVar][i]
-              : this.state[stateVar][i]) +
-            "; return `" +
-            innerContent.replace(/\{/g, "${") +
-            "`"
-        );
-
-        console.log(func(this.state));*/
       }
 
       console.log("FOR CONTENT", forContent);
-
-      // forEl.innerHTML = forContent;
     }
   }
 
@@ -389,21 +369,9 @@ class Duna {
 
       console.log("LOCO", node.nodeValue);
 
-      /*const regexString = Object.keys(this.state).reduce((ac, key) => {
-        return `${ac ? `${ac}|` : ""}\\\${this.state.${key}}`;
-      }, "");
-
-      console.log("REGEXSTRING", regexString);
-
-      const varRegExp = new RegExp(`(${regexString})`, "g");
-
-      console.log(varRegExp);*/
-
       const varRegexp2 = new RegExp(/(\${.*?})/, "g");
 
       console.log("lll", node.nodeValue.split(varRegexp2));
-
-      // const texts = node.nodeValue.split(varRegExp);
 
       const texts = node.nodeValue.split(varRegexp2);
 
@@ -491,21 +459,8 @@ class Duna {
             }
           }
           count += 1;
-
-          /*console.log(`SUPER BRO ${textNode.nodeValue}`, node.nextSibling);
-          console.log(node.nextSibling.nodeType)*/
-
-          // parentNode.appendChild(textNode);
-
-          /*if (insertBefore) {
-            parentNode.insertBefore(textNode, node.nextSibling);
-          } else {
-            parentNode.appendChild(textNode);
-          }*/
         }
       }
-
-      // node.remove();
     }
   }
 
@@ -832,54 +787,6 @@ class Duna {
     this.ctx["tasks"][0].value = "Prro"*/
   }
 
-  render() {
-    // console.log("render()", this.id);
-    // console.log("state", this.state);
-
-    if (this.view) {
-      this.el.innerHTML = this.view();
-    } else {
-      if (this.el.attributes["@text"]) {
-        this.el.innerHTML = this.state[this.el.attributes["@text"].value];
-      } else {
-        const regExp = /{([^}]*)}/g;
-
-        const content = this.context;
-
-        const matches = content.match(regExp);
-
-        let contentParsed = content;
-
-        const { oldContent, newInnerContent } = this.parseFor(this.el);
-
-        if (oldContent !== undefined && newInnerContent !== undefined) {
-          contentParsed = contentParsed.replace(oldContent, newInnerContent);
-        }
-
-        if (matches) {
-          for (let i = 0; i < matches.length; i++) {
-            Object.keys(this.state).forEach((key) => {
-              const varRegExp = new RegExp(`${key}`, "g");
-              const changed = matches[i].replace(
-                varRegExp,
-                `this.state.${key}`
-              );
-
-              contentParsed = contentParsed.replace(matches[i], changed);
-            });
-          }
-
-          contentParsed = contentParsed.replace(/\{/g, "${");
-
-          this.el.innerHTML = eval("`" + contentParsed + "`");
-        }
-
-        // console.log("Before ->");
-        this.bindEvents(this.el);
-      }
-    }
-  }
-
   mount(id) {
     this.id = id;
     this.el = document.querySelector(this.id);
@@ -929,14 +836,7 @@ class Duna {
                         Array.from(that.ctx[prop][i].el.childNodes)[k]
                       );
                     }
-
-                    // that.virtualDOM(that.ctx[prop][i].el);
                   } else {
-                    /*let templateEl = that.ctx[prop].find(
-                    (_el) => _el.virtualId === that.ctx[prop][i].el.virtualId
-                  );
-
-                  that.virtualDOM(that.ctx[prop][i].el, templateEl);*/
                     console.log(that.ctx[prop][i].template);
                     that.ctx[prop][i].el.nodeValue = eval(
                       "`" +
