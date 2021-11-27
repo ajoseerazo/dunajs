@@ -49,11 +49,12 @@
     <div id="reactive">
       <button @click="handleClick">Count: {count}</button>
 
-      <span>{count}</span>
+      { countText.toLowerCase() } {count === 1 ? 'time' : 'times'}
 
       <p>{count} * 2 = { count * doubled }</p>
       <!--<p>{ count * doubled }</p>-->
-      <!--<p><span>{doubled}</span> * 2 = <span>{quadrupled}</span></p>-->
+      <p>{count} * 2 = { doubled }</p>
+      <p>{doubled} * 2 = {quadrupled}</p>
     </div>
     <!--<div id="greetings">
       <h1>El texto es: { text.toLowerCase() }</h1>
@@ -224,6 +225,7 @@
           count: 1,
           doubled: 2,
           quadrupled: 4,
+          countText: "Hello",
         },
         events: {
           handleClick() {

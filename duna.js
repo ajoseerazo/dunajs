@@ -213,6 +213,116 @@ class Duna {
     return {};
   }
 
+  insertAfter(newNode, existingNode) {
+    existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
+  }
+
+  bindNode(node) {
+    console.log("NODE VALUES");
+    console.log(node.nodeValue);
+
+    const regExp = /{([^}]*)}/g;
+
+    const matches = node.nodeValue.match(regExp);
+
+    console.log("TEXT Matches", matches);
+
+    if (matches && matches.length > 0) {
+      node.nodeValue = node.nodeValue.replace(/\{/g, "${");
+
+      for (let i = 0; i < matches.length; i++) {
+        let matchContent = matches[i];
+        Object.keys(this.state).forEach((key) => {
+          console.log("Key", key);
+          console.log("matches[i]", matchContent);
+          const varRegExp = new RegExp(`\\b(${key})\\b`, "g");
+          console.log("varr", varRegExp);
+          const changed = matchContent.replace(varRegExp, `this.state.${key}`);
+
+          console.log("changed", changed);
+
+          node.nodeValue = node.nodeValue.replace(matchContent, changed);
+
+          matchContent = changed;
+        });
+      }
+
+      console.log("LOCO", node.nodeValue);
+
+      /*const regexString = Object.keys(this.state).reduce((ac, key) => {
+        return `${ac ? `${ac}|` : ""}\\\${this.state.${key}}`;
+      }, "");
+
+      console.log("REGEXSTRING", regexString);
+
+      const varRegExp = new RegExp(`(${regexString})`, "g");
+
+      console.log(varRegExp);*/
+
+      const varRegexp2 = new RegExp(/(\${.*?})/, "g");
+
+      console.log("lll", node.nodeValue.split(varRegexp2));
+
+      // const texts = node.nodeValue.split(varRegExp);
+
+      const texts = node.nodeValue.split(varRegexp2);
+
+      console.log("TEXTS-->----", texts);
+
+      const parentNode = node.parentNode;
+
+      const insertBefore = !!node.nextSibling;
+
+      let currentNode = node;
+      let count = 0;
+      for (let k = 0; k < texts.length; k++) {
+        const textNode = document.createTextNode(texts[k]);
+        console.log("text value", textNode.nodeValue);
+
+        if (textNode.nodeValue !== "") {
+          Object.keys(this.state).forEach((key) => {
+            console.log("Key", key);
+
+            const index = textNode.nodeValue.indexOf(`this.state.${key}`);
+
+            if (index !== -1) {
+              if (!this.ctx[key]) {
+                this.ctx[key] = [];
+              }
+
+              this.ctx[key].push({
+                el: textNode,
+                template: textNode.nodeValue,
+              });
+            }
+          });
+
+          if (count === 0) {
+            currentNode.nodeValue = eval("`" + textNode.nodeValue + "`");
+          } else {
+            textNode.nodeValue = eval("`" + textNode.nodeValue + "`");
+            this.insertAfter(textNode, currentNode);
+            currentNode = textNode;
+          }
+          count += 1;
+
+          /*console.log(`SUPER BRO ${textNode.nodeValue}`, node.nextSibling);
+          console.log(node.nextSibling.nodeType)*/
+
+          // parentNode.appendChild(textNode);
+
+          /*if (insertBefore) {
+            parentNode.insertBefore(textNode, node.nextSibling);
+          } else {
+            parentNode.appendChild(textNode);
+          }*/
+        }
+      }
+
+      // node.remove();
+    }
+  }
+
   virtualDOM(el, ctx) {
     console.log("SUper el", el);
 
@@ -238,6 +348,10 @@ class Duna {
 
     // console.log("Root", el.html);
 
+    if (el.nodeType === 3) {
+      this.bindNode(el);
+    }
+
     console.log(
       "Child Nodes",
       Array.from(el.childNodes).filter((node) => node.nodeType === 3)
@@ -247,97 +361,12 @@ class Duna {
       (node) => node.nodeType === 3
     );
 
+    console.log("TEXT NODES", textNodes);
+
     const regExp = /{([^}]*)}/g;
 
     for (let j = 0; j < textNodes.length; j++) {
-      console.log("NODE VALUES");
-      console.log(textNodes[j].nodeValue);
-
-      const matches = textNodes[j].nodeValue.match(regExp);
-
-      console.log("TEXT Matches", matches);
-
-      if (matches && matches.length > 0) {
-        textNodes[j].nodeValue = textNodes[j].nodeValue.replace(/\{/g, "${");
-
-        for (let i = 0; i < matches.length; i++) {
-          let matchContent = matches[i];
-          Object.keys(this.state).forEach((key) => {
-            console.log("Key", key);
-            console.log("matches[i]", matchContent);
-            const varRegExp = new RegExp(`${key}`, "g");
-            console.log("varr", varRegExp);
-            const changed = matchContent.replace(varRegExp, `this.state.${key}`);
-
-            console.log("changed", changed);
-
-            textNodes[j].nodeValue = textNodes[j].nodeValue.replace(
-              matchContent,
-              changed
-            );
-
-            matchContent = changed;
-          });
-        }
-
-        console.log("LOCO", textNodes[j].nodeValue);
-
-        const regexString = Object.keys(this.state).reduce((ac, key) => {
-          return `${ac ? `${ac}|` : ""}\\\${this.state.${key}}`;
-        }, "");
-
-        console.log("REGEXSTRING", regexString);
-
-        const varRegExp = new RegExp(`(${regexString})`, "g");
-
-        console.log(varRegExp);
-
-        const varRegexp2 = new RegExp(/(\${.*?})/, "g");
-
-        console.log("lll", textNodes[j].nodeValue.split(varRegexp2));
-
-        // const texts = textNodes[j].nodeValue.split(varRegExp);
-
-        const texts = textNodes[j].nodeValue.split(varRegexp2);
-
-        console.log("TEXTS-->----", texts);
-
-        const parentNode = textNodes[j].parentNode;
-
-        const insertBefore = !!textNodes[j].nextSibling;
-        for (let k = 0; k < texts.length; k++) {
-          const textNode = document.createTextNode(texts[k]);
-          console.log("text value", textNode.nodeValue);
-          if (textNode.nodeValue !== "") {
-            if (insertBefore) {
-              parentNode.insertBefore(textNode, textNodes[j].nextSibling);
-            } else {
-              parentNode.appendChild(textNode);
-            }
-
-            Object.keys(this.state).forEach((key) => {
-              console.log("Key", key);
-
-              const index = textNode.nodeValue.indexOf(`this.state.${key}`);
-
-              if (index !== -1) {
-                if (!this.ctx[key]) {
-                  this.ctx[key] = [];
-                }
-
-                this.ctx[key].push({
-                  el: textNode,
-                  template: textNode.nodeValue,
-                });
-              }
-            });
-
-            textNode.nodeValue = eval("`" + textNode.nodeValue + "`");
-          }
-        }
-
-        textNodes[j].remove();
-      }
+      this.bindNode(textNodes[j]);
 
       break;
 
