@@ -183,6 +183,7 @@
           },
           clickOnTask(index) {
             console.log(this.state.tasks[index]);
+            this.state.checked = !this.state.checked;
           },
           onChangeTaskCheckbox(checked, index) {
             const newTaks = [];
