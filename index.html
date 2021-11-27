@@ -22,11 +22,11 @@
     <div id="todo-app">
       <div @each="task in tasks">
         <li @click="clickOnTask">
-          <input
+          <!--<input
             type="checkbox"
             @checked="{task.done}"
             @change="onChangeTaskCheckbox"
-          />
+          />-->
           <span>{ value }: { task.title }</span>
           <!--<span>{ value }</span>-->
         </li>
@@ -39,6 +39,18 @@
       </button>
 
       {value}
+
+      <br />
+      <br />
+
+      <div>
+        <input
+          @checked="{checked}"
+          @change="onChangeCheckbox"
+          type="checkbox"
+        />
+        Checked
+      </div>
     </div>
 
     <!--<br />
@@ -151,6 +163,7 @@
           ],
           value: "Hello",
           buttonText: "Add new task",
+          checked: true,
         },
         events: {
           addTask() {
@@ -189,6 +202,9 @@
             this.state.tasks = newTaks;
 
             console.log(this.state);
+          },
+          onChangeCheckbox(checked) {
+            this.state.checked = checked;
           },
         },
       });

@@ -83,7 +83,7 @@ class Duna {
     }
   }
 
-  bindAttrs(el, ctx) {
+  bindAttrs(el, ctx, template) {
     if (!el.attributes) {
       return;
     }
@@ -145,6 +145,42 @@ class Duna {
         console.log(func(this.state, ctx["task"]));
 
         el.checked = JSON.parse(func(this.state, ctx["task"]));
+      } else {
+        let contentParsed = "";
+
+        Object.keys(this.state).forEach((key) => {
+          console.log("Key", key);
+
+          const innerTemplate = template || el.attributes["@checked"].value;
+
+          const index = innerTemplate.indexOf(key);
+
+          if (index !== -1) {
+            const varRegExp = new RegExp(`${key}`, "g");
+            contentParsed = innerTemplate.replace(varRegExp, `state.${key}`);
+          }
+        });
+
+        const func = new Function(
+          "state",
+          "return `" +
+            contentParsed
+              .replace(/this\.state/g, "state")
+              .replace(/\{/g, "${") +
+            "`"
+        );
+
+        console.log(ctx);
+
+        console.log(this.state.tasks);
+
+        console.log(func(this.state));
+
+        el.checked = JSON.parse(func(this.state));
+
+        if (!template) {
+          this.addToContext("checked", el, el.attributes["@checked"].value);
+        }
       }
     }
 
@@ -837,12 +873,23 @@ class Duna {
                       );
                     }
                   } else {
-                    console.log(that.ctx[prop][i].template);
-                    that.ctx[prop][i].el.nodeValue = eval(
-                      "`" +
-                        that.ctx[prop][i].template.replace(/this/g, "that") +
-                        "`"
-                    );
+                    if (
+                      that.ctx[prop][i].el.attributes &&
+                      that.ctx[prop][i].el.attributes["@checked"]
+                    ) {
+                      that.bindAttrs(
+                        that.ctx[prop][i].el,
+                        null,
+                        that.ctx[prop][i].template
+                      );
+                    } else {
+                      console.log(that.ctx[prop][i].template);
+                      that.ctx[prop][i].el.nodeValue = eval(
+                        "`" +
+                          that.ctx[prop][i].template.replace(/this/g, "that") +
+                          "`"
+                      );
+                    }
                   }
                 }
               }
