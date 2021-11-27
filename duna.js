@@ -107,6 +107,31 @@ class Duna {
     }
   }
 
+  parseFor2(el) {
+    console.log("FOR", el);
+
+    const forEl = el.attributes["@each"]
+      ? el
+      : el.querySelector(["*[\\@each]"]);
+
+    if (forEl) {
+      const [innerVar, stateVar] =
+        forEl.attributes["@each"].value.split(" in ");
+
+      const innerContent = forEl.innerHTML;
+
+      let forContent = "";
+      for (let i = 0; i < this.state[stateVar].length; i++) {
+        console.log("Inner CONTENT", innerContent);
+        forContent += innerContent;
+      }
+
+      console.log("FOR CONTENT", forContent);
+
+      forEl.innerHTML = forContent;
+    }
+  }
+
   parseFor(el) {
     console.log("PARSING FOR");
     const forEl = el.attributes["@each"]
@@ -126,6 +151,8 @@ class Duna {
       const innerContent = templateEl ? templateEl.template : forEl.innerHTML;
 
       let contentParsed = innerContent;
+
+      this.addToContext(stateVar, el, el.innerHTML);
 
       if (!this.ctx[stateVar]) {
         this.ctx[stateVar] = [];
@@ -217,6 +244,17 @@ class Duna {
     existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
   }
 
+  addToContext(key, node, template) {
+    if (!this.ctx[key]) {
+      this.ctx[key] = [];
+    }
+
+    this.ctx[key].push({
+      el: node,
+      template: template,
+    });
+  }
+
   bindNode(node) {
     console.log("NODE VALUES");
     console.log(node.nodeValue);
@@ -285,15 +323,9 @@ class Duna {
 
             const index = textNode.nodeValue.indexOf(`this.state.${key}`);
 
+            console.log("SUPER TEXT NODE", textNode);
             if (index !== -1) {
-              if (!this.ctx[key]) {
-                this.ctx[key] = [];
-              }
-
-              this.ctx[key].push({
-                el: textNode,
-                template: textNode.nodeValue,
-              });
+              this.addToContext(key, count === 0 ? currentNode : textNode, textNode.nodeValue);
             }
           });
 
@@ -334,6 +366,10 @@ class Duna {
     console.log(this.state);
     console.log("CTX", ctx);
 
+    if (el.nodeType !== 3 && el.nodeType !== 8 && el.attributes["@each"]) {
+      this.parseFor2(el);
+    }
+
     /*if (!this.ctx[el.virtualId]) {
       this.ctx[el.virtualId] = {}
     }
@@ -363,14 +399,12 @@ class Duna {
 
     console.log("TEXT NODES", textNodes);
 
-    const regExp = /{([^}]*)}/g;
+    // const regExp = /{([^}]*)}/g;
 
     for (let j = 0; j < textNodes.length; j++) {
       this.bindNode(textNodes[j]);
 
-      break;
-
-      if (matches && matches.length > 0) {
+      /*if (matches && matches.length > 0) {
         for (let i = 0; i < matches.length; i++) {
           console.log("Match", matches[i]);
           const regexString = Object.keys(this.state).reduce((ac, key) => {
@@ -452,9 +486,9 @@ class Duna {
                 textNode.nodeValue = eval("`" + contentParsed + "`");
               }
             }
-          }
+          }*/
 
-          /*Object.keys(this.state).forEach((key) => {
+      /*Object.keys(this.state).forEach((key) => {
             console.log("Key", key);
 
             const index = matches[i].indexOf(key);
@@ -535,9 +569,9 @@ class Duna {
 
               console.log("Partial Content Parsed", contentParsed);
             }
-          });*/
+          });*
         }
-      }
+      }*/
     }
 
     /*if (el.innerHTML.trim() === el.innerText.trim() || isRoot) {
@@ -631,7 +665,7 @@ class Duna {
 
     // if (!isRoot) {
     for (let i = 0; i < Array.from(el.childNodes).length; i++) {
-      console.log(Array.from(el.childNodes)[i]);
+      // console.log(Array.from(el.childNodes)[i]);
       this.virtualDOM(Array.from(el.childNodes)[i], ctx);
     }
     // }

@@ -15,20 +15,20 @@
 
     <!--<button id="button-1" @click="onClick">{ buttonText }</button>
 
-    <input id="input-1" @value="value" />
+    <input id="input-1" @value="value" />-->
 
-    <h1>Todo App</h1>
+    <!--<h1>Todo App</h1>-->
 
     <div id="todo-app">
-
       <div @each="task in tasks">
         <li @click="clickOnTask">
-          <input
+          <!--<input
             type="checkbox"
             @checked="{task.done}"
             @change="onChangeTaskCheckbox"
-          />
-          <span>{ value }: { task.title }</span>
+          />-->
+          <!--<span>{ value }: { task.title }</span>-->
+          <span>{ value }</span>
         </li>
       </div>
 
@@ -41,21 +41,20 @@
       {value}
     </div>
 
-    <br />
+    <!--<br />
     <br />
     <br />
     <br />-->
 
-    <div id="reactive">
+    <!--<div id="reactive">
       <button @click="handleClick">Count: {count}</button>
 
       { countText.toLowerCase() } {count === 1 ? 'time' : 'times'}
 
       <p>{count} * 2 = { count * doubled }</p>
-      <!--<p>{ count * doubled }</p>-->
       <p>{count} * 2 = { doubled }</p>
       <p>{doubled} * 2 = {quadrupled}</p>
-    </div>
+    </div>-->
     <!--<div id="greetings">
       <h1>El texto es: { text.toLowerCase() }</h1>
       <button @click="onClick">{ buttonText }</button>
@@ -137,7 +136,7 @@
       button2.mount("#button-2");
     </script>-->
 
-    <!--<script>
+    <script>
       const todo = new Duna({
         state: {
           tasks: [
@@ -197,7 +196,7 @@
       todo.mount("#todo-app");
     </script>
 
-    <script>
+    <!--<script>
       const input = new Duna({
         state: {
           value: "Super value",
@@ -219,7 +218,7 @@
       button.mount("#button-1");
     </script>-->
 
-    <script>
+    <!--<script>
       const reactive = new Duna({
         state: {
           count: 1,
@@ -236,7 +235,7 @@
         },
       });
       reactive.mount("#reactive");
-    </script>
+    </script>-->
 
     <!--<script>
       const h1 = new Duna({
