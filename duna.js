@@ -18,7 +18,7 @@ class Duna {
     console.log(`Bind ${this.id}`, el);
     // console.log(el);
 
-    if (el.attributes && el.attributes['@each']) {
+    if (el.attributes && el.attributes["@each"]) {
       return;
     }
 
@@ -56,10 +56,36 @@ class Duna {
         if (this.events[el.attributes["@change"].value]) {
           el.addEventListener("change", (e) => {
             const func = this.events[el.attributes["@change"].value].bind(this);
-            func(e.type === "checkbox" ? e.target.checked : e.target.value);
+            const index = Array.prototype.indexOf.call(
+              el.parentNode.children,
+              el
+            );
+            func(
+              e.target.type === "checkbox" ? e.target.checked : e.target.value
+            );
           });
         }
       }
+    }
+
+    for (let i = 0; i < el.children.length; i++) {
+      this.bindEvents(el.children[i]);
+    }
+
+    if (!this.eventsListeners.stateChanged) {
+      const stateChangedEventListener = function () {
+        // this.virtualDOM(this.el);
+      }.bind(this);
+
+      this.eventsListeners.stateChanged = stateChangedEventListener;
+
+      this.el.addEventListener("stateChanged", stateChangedEventListener);
+    }
+  }
+
+  bindAttrs(el, ctx) {
+    if (!el.attributes) {
+      return;
     }
 
     if (el.attributes["@value"]) {
@@ -91,27 +117,39 @@ class Duna {
     }
 
     if (el.attributes["@checked"]) {
-      console.log(el.attributes["@checked"].value);
-      if (
-        el.attributes["@checked"].value === "true" ||
-        el.attributes["@checked"].value === "false"
-      ) {
-        el.checked = JSON.parse(el.attributes["@checked"].value);
+      console.log("CHECKED VALUE", el.attributes["@checked"].value);
+
+      if (ctx) {
+        console.log(
+          "return `" +
+            el.attributes["@checked"].value
+              .replace(/this\.state/g, "state")
+              .replace(/\{/g, "${") +
+            "`"
+        );
+
+        const func = new Function(
+          "state",
+          "task",
+          "return `" +
+            el.attributes["@checked"].value
+              .replace(/this\.state/g, "state")
+              .replace(/\{/g, "${") +
+            "`"
+        );
+
+        console.log(ctx);
+
+        console.log(this.state.tasks);
+
+        console.log(func(this.state, ctx["task"]));
+
+        el.checked = JSON.parse(func(this.state, ctx["task"]));
       }
     }
 
     for (let i = 0; i < el.children.length; i++) {
-      this.bindEvents(el.children[i]);
-    }
-
-    if (!this.eventsListeners.stateChanged) {
-      const stateChangedEventListener = function () {
-        // this.virtualDOM(this.el);
-      }.bind(this);
-
-      this.eventsListeners.stateChanged = stateChangedEventListener;
-
-      this.el.addEventListener("stateChanged", stateChangedEventListener);
+      this.bindAttrs(el.children[i], ctx);
     }
   }
 
@@ -167,6 +205,9 @@ class Duna {
         });
 
         this.bindEvents(htmlEl);
+        this.bindAttrs(htmlEl, {
+          [innerVar]: this.state[stateVar][i],
+        });
         /*const func = new Function(
           "state",
           "const " +
@@ -418,7 +459,7 @@ class Duna {
 
               const func = new Function(
                 "state",
-                "task",
+                innerVar,
                 "return `" +
                   textNode.nodeValue.replace(/this\.state/g, "state") +
                   "`"
@@ -925,6 +966,7 @@ class Duna {
     this.virtualDOM(this.el);
 
     this.bindEvents(this.el);
+    this.bindAttrs(this.el);
 
     this.mounted = true;
   }

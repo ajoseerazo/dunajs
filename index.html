@@ -22,11 +22,11 @@
     <div id="todo-app">
       <div @each="task in tasks">
         <li @click="clickOnTask">
-          <!--<input
+          <input
             type="checkbox"
             @checked="{task.done}"
             @change="onChangeTaskCheckbox"
-          />-->
+          />
           <span>{ value }: { task.title }</span>
           <!--<span>{ value }</span>-->
         </li>
@@ -179,7 +179,7 @@
               } else {
                 newTaks.push({
                   ...this.state.tasks[i],
-                  done: true,
+                  done: checked,
                 });
               }
             }
