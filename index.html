@@ -17,7 +17,7 @@
 
     <input id="input-1" @value="value" />-->
 
-    <h1>Todo App</h1>
+    <!--<h1>Todo App</h1>-->
 
     <div id="todo-app">
       <div @each="task in tasks">
@@ -27,8 +27,8 @@
             @checked="{task.done}"
             @change="onChangeTaskCheckbox"
           />-->
-          <!--<span>{ value }: { task.title }</span>-->
-          <span>{ value }</span>
+          <span>{ value }: { task.title }</span>
+          <!--<span>{ value }</span>-->
         </li>
       </div>
 

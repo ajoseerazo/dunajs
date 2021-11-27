@@ -18,6 +18,14 @@ class Duna {
     console.log(`Bind ${this.id}`, el);
     // console.log(el);
 
+    if (el.attributes && el.attributes['@each']) {
+      return;
+    }
+
+    if (el.nodeType === 3 || el.nodeType === 8) {
+      return;
+    }
+
     if (this.el.id !== el.id || (this.el.id === el.id && !this.mounted)) {
       console.log("HERE");
       if (el.attributes["@click"]) {
@@ -107,6 +115,17 @@ class Duna {
     }
   }
 
+  /**
+   * Convert a template string into HTML DOM nodes
+   * @param  {String} str The template string
+   * @return {Node}       The template HTML
+   */
+  stringToHTML(str) {
+    var dom = document.createElement("div");
+    dom.innerHTML = str;
+    return dom.children[0];
+  }
+
   parseFor2(el, templateEl) {
     console.log("FOR", el);
 
@@ -129,15 +148,48 @@ class Duna {
         this.addToContext(stateVar, el, el.innerHTML);
       }
 
+      forEl.innerHTML = "";
+
       let forContent = "";
       for (let i = 0; i < this.state[stateVar].length; i++) {
         console.log("Inner CONTENT", innerContent);
         forContent += innerContent;
+
+        const htmlEl = this.stringToHTML(innerContent);
+
+        console.log("HTMLEL", htmlEl);
+        console.log(htmlEl.children);
+
+        forEl.appendChild(htmlEl);
+
+        this.virtualDOM(htmlEl, {
+          [innerVar]: this.state[stateVar][i],
+        });
+
+        this.bindEvents(htmlEl);
+        /*const func = new Function(
+          "state",
+          "const " +
+            innerVar +
+            " = " +
+            (typeof this.state[stateVar][i] === "string"
+              ? '"' + this.state[stateVar][i] + '"'
+              : Array.isArray(this.state[stateVar])
+              ? typeof this.state[stateVar][i] === "object"
+                ? JSON.stringify(this.state[stateVar][i])
+                : this.state[stateVar][i]
+              : this.state[stateVar][i]) +
+            "; return `" +
+            innerContent.replace(/\{/g, "${") +
+            "`"
+        );
+
+        console.log(func(this.state));*/
       }
 
       console.log("FOR CONTENT", forContent);
 
-      forEl.innerHTML = forContent;
+      // forEl.innerHTML = forContent;
     }
   }
 
@@ -264,7 +316,7 @@ class Duna {
     });
   }
 
-  bindNode(node) {
+  bindNode(node, ctx, parent) {
     console.log("NODE VALUES");
     console.log(node.nodeValue);
 
@@ -321,6 +373,13 @@ class Duna {
       const insertBefore = !!node.nextSibling;
 
       let currentNode = node;
+
+      console.log("PARENT", node.nodeValue);
+
+      if (parent) {
+        parent.appendChild(currentNode);
+      }
+
       let count = 0;
       for (let k = 0; k < texts.length; k++) {
         const textNode = document.createTextNode(texts[k]);
@@ -342,12 +401,53 @@ class Duna {
             }
           });
 
-          if (count === 0) {
-            currentNode.nodeValue = eval("`" + textNode.nodeValue + "`");
+          console.log("CTX----->", ctx);
+
+          const innerVar = "task";
+
+          console.log("CC", currentNode);
+
+          if (ctx) {
+            if (count === 0) {
+              console.log(typeof ctx[innerVar]);
+              console.log(
+                "return `" +
+                  textNode.nodeValue.replace(/this\.state/g, "state") +
+                  "`"
+              );
+
+              const func = new Function(
+                "state",
+                "task",
+                "return `" +
+                  textNode.nodeValue.replace(/this\.state/g, "state") +
+                  "`"
+              );
+
+              console.log("VALE", func(this.state, ctx[innerVar]));
+
+              currentNode.nodeValue = func(this.state, ctx[innerVar]);
+            } else {
+              const func = new Function(
+                "state",
+                "task",
+                "return `" +
+                  textNode.nodeValue.replace(/this\.state/g, "state") +
+                  "`"
+              );
+
+              textNode.nodeValue = func(this.state, ctx[innerVar]);
+              this.insertAfter(textNode, currentNode);
+              currentNode = textNode;
+            }
           } else {
-            textNode.nodeValue = eval("`" + textNode.nodeValue + "`");
-            this.insertAfter(textNode, currentNode);
-            currentNode = textNode;
+            if (count === 0) {
+              currentNode.nodeValue = eval("`" + textNode.nodeValue + "`");
+            } else {
+              textNode.nodeValue = eval("`" + textNode.nodeValue + "`");
+              this.insertAfter(textNode, currentNode);
+              currentNode = textNode;
+            }
           }
           count += 1;
 
@@ -368,8 +468,9 @@ class Duna {
     }
   }
 
-  virtualDOM(el, ctx) {
+  virtualDOM(el, ctx, parent) {
     console.log("SUper el", el);
+    console.log("PP", parent);
 
     if (!el.virtualId) {
       el.virtualId = s4();
@@ -381,6 +482,8 @@ class Duna {
 
     if (el.nodeType !== 3 && el.nodeType !== 8 && el.attributes["@each"]) {
       this.parseFor2(el);
+
+      return;
     }
 
     /*if (!this.ctx[el.virtualId]) {
@@ -398,7 +501,7 @@ class Duna {
     // console.log("Root", el.html);
 
     if (el.nodeType === 3) {
-      this.bindNode(el);
+      this.bindNode(el, ctx, parent);
     }
 
     console.log(
@@ -415,7 +518,7 @@ class Duna {
     // const regExp = /{([^}]*)}/g;
 
     for (let j = 0; j < textNodes.length; j++) {
-      this.bindNode(textNodes[j]);
+      this.bindNode(textNodes[j], ctx, parent);
 
       /*if (matches && matches.length > 0) {
         for (let i = 0; i < matches.length; i++) {
@@ -678,8 +781,8 @@ class Duna {
 
     // if (!isRoot) {
     for (let i = 0; i < Array.from(el.childNodes).length; i++) {
-      // console.log(Array.from(el.childNodes)[i]);
-      this.virtualDOM(Array.from(el.childNodes)[i], ctx);
+      console.log(Array.from(el.childNodes)[i]);
+      this.virtualDOM(Array.from(el.childNodes)[i], ctx, parent);
     }
     // }
 
