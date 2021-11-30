@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <script src="./duna.js"></script>
+  </head>
+
+  <body>
+    <form id="form">
+      <div>
+        <label>Nombre</label>
+        <input @value="name" @changeValue="onChangeName" />
+        <span>{ name_error ? name_error : '' }</span>
+      </div>
+
+      <div>
+        <label>Apellido</label>
+        <input @value="last_name" @changeValue="onChangeLastName" />
+        <span>{ last_name_error ? last_name_error : '' }</span>
+      </div>
+
+      <div>
+        <button @click="click">Validar</button>
+      </div>
+    </form>
+
+    <script>
+      const form = new Duna({
+        state: {
+          name: "",
+          last_name: "",
+          name_error: "",
+          last_name_error: "",
+        },
+        events: {
+          click(_, e) {
+            e.preventDefault();
+
+            let isValid = true;
+            if (!this.state.name) {
+              this.state.name_error = "El nombre es requerido";
+              isValid = false;
+            } else {
+              this.state.name_error = null;
+            }
+
+            if (!this.state.last_name) {
+              this.state.last_name_error = "El apellido es requerido";
+              isValid = false;
+            } else {
+              this.state.last_name_error = null;
+            }
+
+            if (isValid) {
+              alert("El formulario se va a enviar");
+            }
+          },
+          onChangeName(value) {
+            this.state.name = value;
+          },
+          onChangeLastName(value) {
+            this.state.last_name = value;
+          },
+        },
+      });
+
+      form.mount("#form");
+    </script>
+  </body>
+</html>

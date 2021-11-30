@@ -37,7 +37,7 @@ class Duna {
               el
             );
 
-            func(index);
+            func(index, e);
           });
         }
       }
