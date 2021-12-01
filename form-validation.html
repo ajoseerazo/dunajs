@@ -8,13 +8,15 @@
       <div>
         <label>Nombre</label>
         <input @value="name" @changeValue="onChangeName" />
-        <span>{ name_error ? name_error : '' }</span>
+        <span @when="{ name_error !== '' }">{ name_error }</span>
       </div>
 
       <div>
         <label>Apellido</label>
         <input @value="last_name" @changeValue="onChangeLastName" />
-        <span>{ last_name_error ? last_name_error : '' }</span>
+        <span @when="{ last_name_error !== '' }"
+          >{ last_name_error }</span
+        >
       </div>
 
       <div>

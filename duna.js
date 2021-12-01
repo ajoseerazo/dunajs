@@ -83,7 +83,7 @@ class Duna {
     }
   }
 
-  bindAttrs(el, ctx, template) {
+  bindAttrs(el, ctx, template, parentNode, index) {
     if (!el.attributes) {
       return;
     }
@@ -181,6 +181,61 @@ class Duna {
         if (!template) {
           this.addToContext("checked", el, el.attributes["@checked"].value);
         }
+      }
+    }
+
+    if (el.attributes["@when"]) {
+      console.log(el.attributes["@when"].value);
+
+      let contentParsed = "";
+
+      Object.keys(this.state).forEach((key) => {
+        console.log("Key", key);
+
+        const innerTemplate = template || el.attributes["@when"].value;
+
+        const index = innerTemplate.indexOf(key);
+
+        if (index !== -1) {
+          if (!template) {
+            console.log("-->el", el.parentNode);
+
+            const index = Array.prototype.indexOf.call(
+              el.parentNode.children,
+              el
+            );
+
+            console.log(index);
+
+            this.addToContext(
+              key,
+              el,
+              el.attributes["@when"].value,
+              el.parentNode,
+              index
+            );
+          }
+
+          const varRegExp = new RegExp(`${key}`, "g");
+          contentParsed = innerTemplate.replace(varRegExp, `state.${key}`);
+        }
+      });
+
+      const func = new Function(
+        "state",
+        "return `" +
+          contentParsed.replace(/this\.state/g, "state").replace(/\{/g, "${") +
+          "`"
+      );
+
+      const value = JSON.parse(func(this.state));
+
+      if (!value) {
+        el.remove();
+      } else {
+        console.log(el);
+
+        parentNode.insertBefore(el, parentNode.children[index]);
       }
     }
 
@@ -362,7 +417,7 @@ class Duna {
     existingNode.parentNode.insertBefore(newNode, existingNode.nextSibling);
   }
 
-  addToContext(key, node, template) {
+  addToContext(key, node, template, parentNode, index) {
     if (!this.ctx[key]) {
       this.ctx[key] = [];
     }
@@ -370,6 +425,8 @@ class Duna {
     this.ctx[key].push({
       el: node,
       template: template,
+      parentNode,
+      index,
     });
   }
 
@@ -883,12 +940,28 @@ class Duna {
                         that.ctx[prop][i].template
                       );
                     } else {
-                      console.log(that.ctx[prop][i].template);
-                      that.ctx[prop][i].el.nodeValue = eval(
-                        "`" +
-                          that.ctx[prop][i].template.replace(/this/g, "that") +
-                          "`"
-                      );
+                      if (
+                        that.ctx[prop][i].el.attributes &&
+                        that.ctx[prop][i].el.attributes["@when"]
+                      ) {
+                        that.bindAttrs(
+                          that.ctx[prop][i].el,
+                          null,
+                          that.ctx[prop][i].template,
+                          that.ctx[prop][i].parentNode,
+                          that.ctx[prop][i].index
+                        );
+                      } else {
+                        console.log(that.ctx[prop][i].template);
+                        that.ctx[prop][i].el.nodeValue = eval(
+                          "`" +
+                            that.ctx[prop][i].template.replace(
+                              /this/g,
+                              "that"
+                            ) +
+                            "`"
+                        );
+                      }
                     }
                   }
                 }
