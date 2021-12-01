@@ -8,16 +8,27 @@
       <button @click="toggle" @when="{ loggedIn === true }">Log out</button>
 
       <button @click="toggle" @when="{ loggedIn === false }">Log in</button>
+
+      <div @when="{ loggedIn === true }">
+        <span>Bienvenido <span>{ name }</span></span>
+      </div>
     </div>
 
     <script>
       const button = new Duna({
         state: {
           loggedIn: false,
+          name: "Amilcar Jose",
+          count: 0,
         },
         events: {
           toggle() {
             this.state.loggedIn = !this.state.loggedIn;
+            this.state.count += 1;
+
+            if (this.state.count === 3) {
+              this.state.name = "Juan Perez";
+            }
           },
         },
       });
