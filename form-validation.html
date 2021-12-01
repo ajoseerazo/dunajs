@@ -14,12 +14,14 @@
       <div>
         <label>Apellido</label>
         <input @value="last_name" @changeValue="onChangeLastName" />
-        <span @when="{ last_name_error !== '' }"
-          >{ last_name_error }</span
-        >
+        <span @when="{ last_name_error !== '' }">{ last_name_error }</span>
       </div>
 
       <div>
+        <span @when="{ name_error === '' && last_name_error === '' }"
+          >No hay errores</span
+        >
+
         <button @click="click">Validar</button>
       </div>
     </form>
@@ -41,14 +43,14 @@
               this.state.name_error = "El nombre es requerido";
               isValid = false;
             } else {
-              this.state.name_error = null;
+              this.state.name_error = "";
             }
 
             if (!this.state.last_name) {
               this.state.last_name_error = "El apellido es requerido";
               isValid = false;
             } else {
-              this.state.last_name_error = null;
+              this.state.last_name_error = "";
             }
 
             if (isValid) {

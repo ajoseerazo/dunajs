@@ -187,12 +187,12 @@ class Duna {
     if (el.attributes["@when"]) {
       console.log(el.attributes["@when"].value);
 
-      let contentParsed = "";
+      const innerTemplate = template || el.attributes["@when"].value;
+
+      let contentParsed = innerTemplate;
 
       Object.keys(this.state).forEach((key) => {
         console.log("Key", key);
-
-        const innerTemplate = template || el.attributes["@when"].value;
 
         const index = innerTemplate.indexOf(key);
 
@@ -216,10 +216,17 @@ class Duna {
             );
           }
 
-          const varRegExp = new RegExp(`${key}`, "g");
-          contentParsed = innerTemplate.replace(varRegExp, `state.${key}`);
+          const varRegExp = new RegExp(`\\b${key}\\b`, "g");
+          contentParsed = contentParsed.replace(varRegExp, `state.${key}`);
+
+          console.log(contentParsed);
         }
       });
+      console.log(
+        "return `" +
+          contentParsed.replace(/this\.state/g, "state").replace(/\{/g, "${") +
+          "`"
+      );
 
       const func = new Function(
         "state",
@@ -235,7 +242,9 @@ class Duna {
       } else {
         console.log(el);
 
-        parentNode.insertBefore(el, parentNode.children[index]);
+        if (parentNode) {
+          parentNode.insertBefore(el, parentNode.children[index]);
+        }
       }
     }
 
