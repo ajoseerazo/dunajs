@@ -258,13 +258,21 @@ class Duna {
     }
 
     const length = el.children.length;
+    let diff = 0;
     for (let i = 0; i < length; i++) {
       console.log("INSPECTED", el.children[i]);
 
+      if (length !== el.children.length) {
+        diff = length - el.children.length;
+      }
       // this.bindAttrs(el.children[i], ctx);
 
+      console.log("Diiff", diff);
+
       this.bindAttrs(
-        el.children[i] ? el.children[i] : el.children[i - 1 > 0 ? i - 1 : 0],
+        el.children[i]
+          ? el.children[i]
+          : el.children[i - diff > 0 ? i - diff : 0],
         ctx,
         null,
         el.parentNode,
