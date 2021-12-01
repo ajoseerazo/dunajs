@@ -185,6 +185,8 @@ class Duna {
     }
 
     if (el.attributes["@when"]) {
+      console.log("EL->", el);
+
       console.log(el.attributes["@when"].value);
 
       const innerTemplate = template || el.attributes["@when"].value;
@@ -239,17 +241,35 @@ class Duna {
 
       if (!value) {
         el.remove();
+        // el.style.display = "none";
       } else {
+        // el.remove();
+        // el.style.display = "flex";
         console.log(el);
 
         if (parentNode) {
           parentNode.insertBefore(el, parentNode.children[index]);
+        } else {
+          if (el.parentNode) {
+            el.parentNode.insertBefore(el, el.parentNode.children[index]);
+          }
         }
       }
     }
 
-    for (let i = 0; i < el.children.length; i++) {
-      this.bindAttrs(el.children[i], ctx);
+    const length = el.children.length;
+    for (let i = 0; i < length; i++) {
+      console.log("INSPECTED", el.children[i]);
+
+      // this.bindAttrs(el.children[i], ctx);
+
+      this.bindAttrs(
+        el.children[i] ? el.children[i] : el.children[i - 1 > 0 ? i - 1 : 0],
+        ctx,
+        null,
+        el.parentNode,
+        i
+      );
     }
   }
 
