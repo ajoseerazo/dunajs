@@ -10,7 +10,7 @@
       <button @click="toggle" @when="{ loggedIn === false }">Log in</button>
 
       <div @when="{ loggedIn === true }">
-        <span>Bienvenido <span>{ name }</span></span>
+        <span>Bienvenido <span>{ name } { count }</span></span>
       </div>
     </div>
 
@@ -26,8 +26,11 @@
             this.state.loggedIn = !this.state.loggedIn;
             this.state.count += 1;
 
-            if (this.state.count === 3) {
+            if (this.state.count > 3) {
               this.state.name = "Juan Perez";
+              this.state.count = 0;
+            } else {
+              this.state.name = "Amilcar Erazo";
             }
           },
         },
