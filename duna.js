@@ -12,6 +12,7 @@ class Duna {
     this.eventsListeners = {};
     this.for = null;
     this.ctx = {};
+    this.onMounted = props.onMounted;
   }
 
   bindEvents(el) {
@@ -1038,5 +1039,9 @@ class Duna {
     this.bindAttrs(this.el);
 
     this.mounted = true;
+
+    if (this.onMounted) {
+      this.onMounted();
+    }
   }
 }

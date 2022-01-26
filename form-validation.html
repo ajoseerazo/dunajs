@@ -43,6 +43,9 @@
           last_name_error: "",
           genre: "",
         },
+        onMounted() {
+          console.log("mounted");
+        },
         events: {
           click(_, e) {
             e.preventDefault();
@@ -79,7 +82,7 @@
             this.state.last_name = value;
           },
           onChangeGenre(value) {
-            console.log(value);
+            console.log("CAA", value);
             this.state.genre = value;
           },
         },
