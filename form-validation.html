@@ -46,9 +46,16 @@
         onMounted() {
           console.log("mounted");
         },
+        methods: {
+          alert() {
+            console.log("THIS->", this);
+            alert();
+          },
+        },
         events: {
           click(_, e) {
             e.preventDefault();
+            this.methods.alert();
 
             let isValid = true;
             if (!this.state.name) {

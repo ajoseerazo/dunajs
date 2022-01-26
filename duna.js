@@ -13,6 +13,11 @@ class Duna {
     this.for = null;
     this.ctx = {};
     this.onMounted = props.onMounted;
+    this.methods = props.methods;
+
+    Object.keys(this.methods).forEach((method) => {
+      this.methods[method] = this.methods[method].bind(this)
+    });
   }
 
   bindEvents(el) {
