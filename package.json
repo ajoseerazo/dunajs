@@ -1,0 +1,19 @@
+{
+  "name": "@kirckz/duna",
+  "version": "0.0.2",
+  "description": "A tiny library to build rich UI ",
+  "main": "duna.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajoseerazo/dunajs.git"
+  },
+  "author": "Amilcar Erazo <ajose.erazo@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajoseerazo/dunajs/issues"
+  },
+  "homepage": "https://github.com/ajoseerazo/dunajs#readme"
+}

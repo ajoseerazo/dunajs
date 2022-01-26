@@ -43,12 +43,24 @@ class Duna {
       }
 
       if (el.attributes["@changeValue"]) {
-        if (this.events[el.attributes["@changeValue"].value]) {
-          el.addEventListener("keyup", (e) => {
-            const func =
-              this.events[el.attributes["@changeValue"].value].bind(this);
-            func(e.target.value);
-          });
+        switch (el.tagName) {
+          case "INPUT":
+            if (this.events[el.attributes["@changeValue"].value]) {
+              el.addEventListener("keyup", (e) => {
+                const func =
+                  this.events[el.attributes["@changeValue"].value].bind(this);
+                func(e.target.value);
+              });
+            }
+            break;
+          case "SELECT":
+            if (this.events[el.attributes["@changeValue"].value]) {
+              el.addEventListener("change", (e) => {
+                const func =
+                  this.events[el.attributes["@changeValue"].value].bind(this);
+                func(e.target.value);
+              });
+            }
         }
       }
 

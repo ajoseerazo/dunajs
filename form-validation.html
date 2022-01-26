@@ -18,7 +18,15 @@
       </div>
 
       <div>
-        <span @when="{ name_error === '' && last_name_error === '' }"
+        <label>Genero</label>
+        <select @value="genre" @changeValue="onChangeGenre">
+          <option value="masculino">Masculino</option>
+          <option value="femenino">Femenino</option>
+        </select>
+      </div>
+
+      <div>
+        <span @when="{ name_error === '' && last_name_error === '' && genre === ''}"
           >No hay errores</span
         >
 
@@ -33,6 +41,7 @@
           last_name: "",
           name_error: "",
           last_name_error: "",
+          genre: "",
         },
         events: {
           click(_, e) {
@@ -53,15 +62,25 @@
               this.state.last_name_error = "";
             }
 
+            if (!this.state.genre) {
+              alert("No hay genero");
+              isValid = false;
+            }
+
             if (isValid) {
               alert("El formulario se va a enviar");
             }
           },
           onChangeName(value) {
+            console.log(value);
             this.state.name = value;
           },
           onChangeLastName(value) {
             this.state.last_name = value;
+          },
+          onChangeGenre(value) {
+            console.log(value);
+            this.state.genre = value;
           },
         },
       });

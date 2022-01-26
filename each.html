@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script src="./duna.js"></script>
+  </head>
+
+  <body>
+    <ul id="for-each" @each="task in cats">
+      <li>
+        <a target="_blank" href="https://youtube.com"> { task.name } </a>
+      </li>
+    </ul>
+
+    <script>
+      const forEach = new Duna({
+        state: {
+          cats: [
+            { id: "J---aiyznGQ", name: "Keyboard Cat" },
+            { id: "z_AbfPXTKms", name: "Maru" },
+            { id: "OUtn3pvWmpg", name: "Henri The Existential Cat" },
+          ],
+        },
+      });
+
+      forEach.mount("#for-each");
+    </script>
+  </body>
+</html>
