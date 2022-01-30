@@ -46,7 +46,7 @@ With **DunaJs** you don't need to create templates or extra files, just add espe
   });
   
   button.mount("#button);
-<scritp>
+<script>
 ```
 
 #### State handling
