@@ -18,17 +18,31 @@
     <input id="input-1" @value="value" />-->
 
     <!--<h1>Todo App</h1>-->
+    <div id="app">
+      <app-counter></app-counter>
+    </div>
 
-    <div id="todo-app">
+    <div id="counter">
+      <h1>Counter</h1>
+      <button @click="decrement">-</button>
+      <span>value: { counter }</span>
+      <button @click="increment">+</button>
+    </div>
+
+    <app-counter-2></app-counter-2>
+
+    <!--<app-drawer></app-drawer>-->
+
+    <!--<div id="todo-app">
       <div @each="task in tasks">
         <li @click="clickOnTask">
-          <!--<input
+          <!-<input
             type="checkbox"
             @checked="{task.done}"
             @change="onChangeTaskCheckbox"
-          />-->
+          />--
           <span>{ value }: { task.title }</span>
-          <!--<span>{ value }</span>-->
+          <!-<span>{ value }</span>--
         </li>
       </div>
 
@@ -53,7 +67,7 @@
       </div>
     </div>
 
-    <!--<br />
+    <!-<br />
     <br />
     <br />
     <br />-->
@@ -149,7 +163,7 @@
     </script>-->
 
     <script>
-      const todo = new Duna({
+      /*const todo = new Duna({
         state: {
           tasks: [
             {
@@ -208,9 +222,101 @@
             this.state.checked = checked;
           },
         },
-      });
+      });*/
 
-      todo.mount("#todo-app");
+      class Counter extends DunaElement {
+        constructor() {
+          super();
+        }
+
+        state = {
+          count: 10,
+        };
+
+        increaseCount = () => this.state.count++;
+
+        render() {
+          return html`
+            <div>
+              counter ${this.state.count}
+              <button class="button">Click me ${this.state.count}!!!</button>
+            </div>
+          `;
+        }
+
+        events = [["button", "click", this.increaseCount]];
+      }
+
+      /*const counter = new Duna2({
+        state: {
+          counter: 1,
+        },
+        events: {
+          increment() {
+            this.state.counter++;
+          },
+          decrement() {
+            this.state.counter--;
+          },
+        },
+        methods: {},
+      });*/
+
+      class Counter2 extends Duna2 {
+        state = {
+          counter: 1,
+        };
+
+        // @reactive()
+        counter = 1;
+
+        events = {
+          increment() {
+            this.state.counter++;
+          },
+          decrement() {
+            this.state.counter--;
+          },
+        };
+
+        methods = {};
+
+        template = () => `
+          <div>
+            <button class="button" @click="decrement">Decrement</button>
+            counter { counter }
+            <button class="button" @click="increment">Increment</button>
+          </div>
+        `;
+      }
+
+      // counter.mount("#counter");
+
+      // const template = `<counter></counter>`;
+
+      /*const components = {
+        counter: Counter,
+      };*/
+
+      //const app = document.getElementById("app");
+      // app.innerHTML = template;
+
+      /*for (let component in components) {
+        const [el] = app.getElementsByTagName(component);
+
+        if (el) {
+          const componentObject = new components[component]();
+          componentObject.mount(el);
+        }
+      }*/
+
+      // console.log(document.getElementsByTagName("counter"));
+      // c.mount("app");
+
+      /*window.customElements.define("app-counter", Counter);
+      window.customElements.define("app-counter-2", Counter2);*/
+
+      DunaApp.define("app-counter-2", Counter2);
     </script>
 
     <!--<script>
