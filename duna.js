@@ -1144,3 +1144,5 @@ class DunaApp {
     window.customElements.define(tag, component);
   }
 }
+
+module.exports = Duna2;

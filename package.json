@@ -15,8 +15,5 @@
   "bugs": {
     "url": "https://github.com/ajoseerazo/dunajs/issues"
   },
-  "homepage": "https://github.com/ajoseerazo/dunajs#readme",
-  "dependencies": {
-    "@kirckz/duna": "^0.0.5"
-  }
+  "homepage": "https://github.com/ajoseerazo/dunajs#readme"
 }
