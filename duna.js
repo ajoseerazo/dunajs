@@ -1145,5 +1145,19 @@ class DunaApp {
   }
 }
 
+function tag(name) {
+  return function decorator(Class) {
+    DunaApp.define(name, Class);
+  };
+}
+
+function reactive(target, name, descriptor) {
+  console.log("Target", target);
+  console.log(name);
+  console.log(descriptor);
+}
+
 exports.Duna = Duna2;
 exports.DunaApp = DunaApp;
+exports.tag = tag;
+exports.reactive = reactive;
