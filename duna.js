@@ -1145,4 +1145,5 @@ class DunaApp {
   }
 }
 
-module.exports = Duna2;
+exports.Duna = Duna2;
+exports.DunaApp = DunaApp;
