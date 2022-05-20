@@ -4,20 +4,36 @@ let s4 = () => {
     .substring(1);
 };
 
-class Duna {
+class Duna2 extends HTMLElement {
+  reactive(target) {
+    console.log("TGT", targer);
+  }
+
   constructor(props) {
-    this.events = props.events;
-    this.view = props.view;
-    this.state = props.state;
-    this.eventsListeners = {};
+    super();
+
+    // this.events = props.events;
+    // this.view = props.view;
+    // this.state = props.state;
+    /*this.eventsListeners = {};
     this.for = null;
     this.ctx = {};
-    this.onMounted = props.onMounted;
-    this.methods = props.methods;
+    // this.onMounted = props.onMounted;
+    // this.methods = props.methods;
+
+    console.log(this.methods);
+    console.log(this.state);
 
     Object.keys(this.methods).forEach((method) => {
-      this.methods[method] = this.methods[method].bind(this)
-    });
+      this.methods[method] = this.methods[method].bind(this);
+    });*/
+
+    this.ctx = {};
+    this.eventsListeners = {};
+  }
+
+  connectedCallback() {
+    this.mount(this);
   }
 
   bindEvents(el) {
@@ -90,7 +106,7 @@ class Duna {
       this.bindEvents(el.children[i]);
     }
 
-    if (!this.eventsListeners.stateChanged) {
+    if (this.eventsListeners && !this.eventsListeners.stateChanged) {
       const stateChangedEventListener = function () {
         // this.virtualDOM(this.el);
       }.bind(this);
@@ -546,9 +562,11 @@ class Duna {
           Object.keys(this.state).forEach((key) => {
             console.log("Key", key);
 
+            console.log(`this.state.${key}`);
             const index = textNode.nodeValue.indexOf(`this.state.${key}`);
 
             console.log("SUPER TEXT NODE", textNode);
+            console.log(index);
             if (index !== -1) {
               this.addToContext(
                 key,
@@ -935,15 +953,20 @@ class Duna {
     this.ctx["tasks"][0].value = "Prro"*/
   }
 
-  mount(id) {
-    this.id = id;
-    this.el = document.querySelector(this.id);
+  mount(el) {
+    this.el = el;
 
     if (!this.el) {
       throw new Error("Element doesn't exists in the DOM");
     }
 
-    this.context = this.el.innerHTML;
+    this.context = this.template();
+
+    this.el.innerHTML = this.template();
+
+    console.log("CONTEXT", this.context);
+
+    console.log("STATE", this.state);
 
     if (this.state) {
       const el = this.el;
@@ -951,6 +974,8 @@ class Duna {
       this.state = new Proxy(this.state, {
         set: function (obj, prop, value) {
           console.log("PROP", prop);
+
+          console.log(that.ctx);
 
           if (value !== obj[prop]) {
             obj[prop] = value;
@@ -1050,3 +1075,89 @@ class Duna {
     }
   }
 }
+
+// Tagged Template Literal Function:
+function html(literals, ...vars) {
+  let raw = literals.raw;
+
+  let result = "";
+  let i = 1;
+  let len = arguments.length;
+  let variable;
+  let str;
+
+  while (i < len) {
+    str = raw[i - 1];
+    /**
+     * Allow safe html by prefixing interpolation with an exclamation mark.
+     */
+    safe = str[str.length - 1] === "!";
+    variable = vars[i - 1];
+
+    result += str + variable;
+
+    i++;
+  }
+
+  // Add last part string literal.
+  result += raw[raw.length - 1];
+
+  return result;
+}
+
+class DunaElement extends HTMLElement {
+  template = "";
+
+  connectedCallback() {
+    this.mount(this);
+  }
+
+  renderComp() {
+    this.template = this.render();
+
+    this.el.innerHTML = this.template;
+  }
+
+  bindEvents() {
+    if (this.events) {
+      for (let i = 0; i < this.events.length; i++) {
+        const element = this.el.querySelector(this.events[i][0]);
+
+        element.addEventListener(this.events[i][1], () => {
+          this.events[i][2]();
+          this.renderComp();
+          this.bindEvents();
+        });
+      }
+    }
+  }
+
+  mount(el) {
+    this.el = el;
+    this.renderComp();
+    this.bindEvents();
+  }
+}
+
+class DunaApp {
+  static define(tag, component) {
+    window.customElements.define(tag, component);
+  }
+}
+
+function tag(name) {
+  return function decorator(Class) {
+    DunaApp.define(name, Class);
+  };
+}
+
+function reactive(target, name, descriptor) {
+  console.log("Target", target);
+  console.log(name);
+  console.log(descriptor);
+}
+
+exports.Duna = Duna2;
+exports.DunaApp = DunaApp;
+exports.tag = tag;
+exports.reactive = reactive;
